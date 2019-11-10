@@ -1,0 +1,17 @@
+base
+fs
+sf
+readr
+ggplot2
+gganimate
+transformr
+lubridate
+here
+tidyverse
+tibble
+tidyr
+purrr
+dplyr
+stringr
+forcats
+readxl

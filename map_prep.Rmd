@@ -1,0 +1,108 @@
+---
+title: "map_prep"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(fs)
+library(sf)
+library(sp)
+library(readr)
+library(readxl)
+library(gganimate)
+library(transformr)
+library(lubridate)
+library(here)
+library(maptools)
+library(rgdal)
+library(tidyverse)
+```
+
+```{r data, cache = TRUE, message = FALSE, echo = FALSE, warning = FALSE}
+
+conflict <- read_csv("1900-01-01-2019-10-17-Yemen.csv", col_types = cols(
+  .default = col_character(),
+  data_id = col_double(),
+  iso = col_double(),
+  event_id_no_cnty = col_double(),
+  event_date = col_date(format = ""),
+  year = col_double(),
+  time_precision = col_double(),
+  inter1 = col_double(),
+  inter2 = col_double(),
+  interaction = col_double(),
+  admin3 = col_logical(),
+  latitude = col_double(),
+  longitude = col_double(),
+  geo_precision = col_double(),
+  fatalities = col_double(),
+  timestamp = col_double()
+))
+idp <- read_xlsx("idp.xlsx", skip = 1)
+returnees <- read_xlsx("returnees.xlsx", skip = 1)
+
+options(stringsAsFactors = FALSE)
+
+```
+
+```{r, clean data}
+
+# Since the idp data start on 6/24/2019 and returnees data start on 7/1/2019, I decided to start on 7/1/2019. I filtered the idp, returnee, and conflict data accordingly. 
+
+
+conflict_dated <- conflict %>% 
+      select("event_date", "event_type", "sub_event_type", "actor1", "admin2", "location", "latitude", "longitude", "fatalities") %>% 
+      filter(event_date >= as.Date("2019-07-01"))
+
+idp_dated <- idp %>% 
+      select("District", "Sub-Area", "Total_#_of_HH", "Present_Location", "District_of_Origin", "Displacement_Date", "Return_reason", "Event_Description") %>% 
+      filter(Displacement_Date >= as.Date("2019-07-01"))
+  
+returnees_dated <- returnees %>% 
+      select("District", "Sub-Area", "Total_#_of_HH", "Present_Location", "District_of_Origin", "Return_Date", "Displacement/Return_reason", "Event_Description") %>%  
+      filter(Return_Date >= as.Date("2019-07-01"))
+```
+
+```{r, read in map}
+
+# where am I? 
+
+here()
+
+# Read in the map and save to path 
+
+#path <- file.path( "C:/Users/elizm/OneDrive/Documents/fall_2019/gov_1005/final-project", "gadm36_YEM_2_sf.rds")
+
+# FR map (Level 2) from GADM
+
+#frRDS <- readRDS(path)
+
+# Region names 1 in data frame
+
+#frRDS_df <- ggplot2::fortify(frRDS, region = "NAME_1")
+
+download.file("https://biogeo.ucdavis.edu/data/gadm3.6/Rsf/gadm36_YEM_2_sf.rds", destfile = "yemen_map.rds")
+
+download.file("https://biogeo.ucdavis.edu/data/gadm3.6/shp/gadm36_YEM_shp.zip", destfile = "yemen_map.shp")
+
+untar("yemen_map.shp")
+shape <- st_read("yemen_map.shp")
+```
+
+```{r, create map with data}
+
+#loc <- ggplot(shape) +
+  #geom_sf() +
+  #geom_sf(data = location_filtered) +
+  #transition_time(date) +
+  #transition_states(date, transition_length = 1, state_length = 30) +
+  #labs(title = 'Date: {closest_state}')
+
+idp_map <- ggplot(frRDS_df)
+
+
+
+```
+
