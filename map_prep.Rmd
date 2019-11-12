@@ -71,24 +71,27 @@ returnees_dated <- returnees %>%
 
 here()
 
-# Read in the map and save to path 
-
-#path <- file.path( "C:/Users/elizm/OneDrive/Documents/fall_2019/gov_1005/final-project", "gadm36_YEM_2_sf.rds")
+dir_create("raw-data")
+dir_create("clean-data")
+dir_create("graphics")
 
 # FR map (Level 2) from GADM
-
-#frRDS <- readRDS(path)
-
-# Region names 1 in data frame
-
-#frRDS_df <- ggplot2::fortify(frRDS, region = "NAME_1")
 
 download.file("https://biogeo.ucdavis.edu/data/gadm3.6/Rsf/gadm36_YEM_2_sf.rds", destfile = "yemen_map.rds")
 
 download.file("https://biogeo.ucdavis.edu/data/gadm3.6/shp/gadm36_YEM_shp.zip", destfile = "yemen_map.shp")
 
-untar("yemen_map.shp")
-shape <- st_read("yemen_map.shp")
+shape <- read_sf("gadm36_YEM_2.shp")
+
+#do I need this .rds or should this x be the conflict and/or the migration data? 
+
+x <- read_rds("yemen_map.rds") %>% 
+  drop_na()
+
+locations <- st_as_sf(x, coords = c("lng", "lat"), crs = 4326)
+
+write_rds(locations, "clean-data/locations.rds")
+write_rds(shape, "clean-data/shape.rds")
 ```
 
 ```{r, create map with data}
@@ -100,9 +103,11 @@ shape <- st_read("yemen_map.shp")
   #transition_states(date, transition_length = 1, state_length = 30) +
   #labs(title = 'Date: {closest_state}')
 
-idp_map <- ggplot(frRDS_df)
+idp_map <- ggplot(shape) +
+  geom_sf(data = shape) #+
+  #geom_sf(data = conflict_dated, aes(color = sub_event_type))
 
-
+idp_map
 
 ```
 
