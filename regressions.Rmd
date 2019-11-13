@@ -1,0 +1,74 @@
+---
+title: "regressions for final project"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+
+```
+
+```{r fatalities, cache = TRUE, message = FALSE, echo = FALSE, warning = FALSE}}
+
+#just focusing on UNDATED conflict data here: 
+
+#find average fatalities per day 
+
+avg_fat_per_day <- conflict %>% 
+  group_by(event_date) %>% 
+  summarise(mean = mean(fatalities), n = n()) %>% 
+  summarise(mean = mean(n))
+
+avg_fat_per_day
+
+#approx 25 fatalities per day from conflict
+
+
+#fatalities by day plot
+
+plot_day <- ggplot(conflict, aes(x = event_date, y = fatalities)) +
+  geom_col() +
+  labs(title = "Fatalities in the Yemeni Civil War Per Day", subtitle = "On average, 25 people die every day from conflict", x = "Date", y = "Fatalities", caption = "Source: Data from ACLED, https://www.acleddata.com/tag/yemen/")
+
+plot_day
+
+#find average fatalities per year 
+
+avg_fat_per_year <- conflict %>% 
+  group_by(year) %>% 
+  summarise(mean = mean(fatalities), n = n()) %>% 
+  summarise(mean = mean(n))
+
+avg_fat_per_year
+
+#8716 fatalities per year from conflict 
+
+#plot fatalities per year
+
+plot_year <- ggplot(conflict, aes(x = year, y = fatalities)) +
+  geom_col() +
+  labs(title = "Fatalities in the Yemeni Civil War Per Day", subtitle = "An average of 8716 people have died each year from conflict alone", x = "Date", y = "Fatalities", caption = "Source: Data from ACLED, https://www.acleddata.com/tag/yemen/")
+
+plot_year
+
+#find average fatalities by sub_event_type
+
+#this will take some more work; group_by isn't behaving properly... 
+
+fat_sub_event <- conflict %>% 
+  select(sub_event_type, event_date, fatalities) %>% 
+  group_by("sub_event_type") 
+
+
+```
+
+```{r, 2}
+
+
+
+
+```
+
+
