@@ -18,26 +18,32 @@ library(lubridate)
 library(here)
 library(maptools)
 library(rgdal)
+library(gifski)
 library(tidyverse)
 ```
 
 
 ```{r, map, cache=TRUE}
+
 #read in the .rds's from clean-data_2. Remember, the locations object (now locate, below) is where the conflict data is stored.  
 
 locate <- read_rds("clean-data_2/locations.rds")
 
 shap <- read_rds("clean-data_2/shape.rds")
 
-# create a map. What does it show? Who knows! 
+#moving map of fatalities per month
 
 fat_local_all <- locate %>% 
-  select(geometry, location, fatalities)
+  select(geometry, location, fatalities, event_date)
 
 
-map <- ggplot(shap) + geom_sf(data = shap) + geom_sf(data = fat_local_all, aes(colour = fatalities))
+map <- ggplot(shap) + geom_sf(data = shap) + geom_sf(data = fat_local_all, aes(colour = fatalities)) + 
+    transition_time(event_date) +
+  transition_states(event_date, transition_length = 1, state_length = 30) +
+  labs(title = 'Date: {closest_state}')
 
-map
+map_anim <- animate(map, fps = 5)
+map_anim
 
 
 
