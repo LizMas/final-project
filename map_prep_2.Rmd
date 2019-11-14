@@ -1,0 +1,75 @@
+---
+title: "map_prep_2"
+output: html_document
+---
+
+```{r setup, include=FALSE, cache=TRUE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(fs)
+library(sf)
+library(sp)
+library(readr)
+library(readxl)
+library(gganimate)
+library(transformr)
+library(lubridate)
+library(here)
+library(maptools)
+library(rgdal)
+library(tidyverse)
+```
+
+```{r, cache = TRUE, message = FALSE, echo = FALSE, warning = FALSE}
+
+conflict <- read_csv("1900-01-01-2019-10-17-Yemen.csv", col_types = cols(
+  .default = col_character(),
+  data_id = col_double(),
+  iso = col_double(),
+  event_id_no_cnty = col_double(),
+  event_date = col_date(format = ""),
+  year = col_double(),
+  time_precision = col_double(),
+  inter1 = col_double(),
+  inter2 = col_double(),
+  interaction = col_double(),
+  admin3 = col_logical(),
+  latitude = col_double(),
+  longitude = col_double(),
+  geo_precision = col_double(),
+  fatalities = col_double(),
+  timestamp = col_double()
+))
+
+```
+
+```{r}
+
+#where am I? 
+here()
+
+#create directories for organization 
+dir_create("raw-data_2")
+dir_create("clean-data_2")
+dir_create("graphics_2")
+
+#download the map 
+
+geo <- download.file("https://data.humdata.org/dataset/6b2656e2-b915-4671-bfed-468d5edcd80a/resource/168783ae-c67b-4852-9ad8-aacc5f6dcfa0/download/yem_adm_govyem_cso_ochayemen_20191002_shp.zip", destfile = "raw-data_2/yemen.shp")
+
+untar("raw-data_2/yemen.shp")
+shape <- st_read("yem_admbnda_adm1_govyem_cso_20191002.shp")
+
+```
+
+```{r}
+
+#create locations using conflict data
+
+locations <- st_as_sf(conflict, coords = c("longitude", "latitude"), crs = 4326) 
+
+write_rds(locations, "clean-data_2/locations.rds")
+write_rds(shape, "clean-data_2/shape.rds")
+
+```
+
