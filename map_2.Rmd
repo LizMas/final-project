@@ -1,0 +1,46 @@
+---
+title: "map_2"
+output: html_document
+---
+
+```{r setup, include=FALSE, cache=TRUE} 
+knitr::opts_chunk$set(echo = FALSE)
+
+
+library(fs)
+library(sf)
+library(sp)
+library(readr)
+library(readxl)
+library(gganimate)
+library(transformr)
+library(lubridate)
+library(here)
+library(maptools)
+library(rgdal)
+library(tidyverse)
+```
+
+
+```{r, map, cache=TRUE}
+#read in the .rds's from clean-data_2. Remember, the locations object (now locate, below) is where the conflict data is stored.  
+
+locate <- read_rds("clean-data_2/locations.rds")
+
+shap <- read_rds("clean-data_2/shape.rds")
+
+# create a map. What does it show? Who knows! 
+
+fat_local_all <- locate %>% 
+  select(geometry, location, fatalities)
+
+
+map <- ggplot(shap) + geom_sf(data = shap) + geom_sf(data = fat_local_all, aes(colour = fatalities))
+
+map
+
+
+
+
+```
+
