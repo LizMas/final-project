@@ -6,8 +6,19 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
+library(fs)
+library(sf)
+library(sp)
+library(readr)
+library(readxl)
+library(gganimate)
+library(transformr)
+library(lubridate)
+library(here)
+library(maptools)
+library(rgdal)
+library(gifski)
 library(tidyverse)
-
 ```
 
 ```{r fatalities, cache = TRUE, message = FALSE, echo = FALSE, warning = FALSE}}
@@ -61,10 +72,16 @@ plot_year
 #Remember, locate is conflict but with geometry 
 
 fat_sub_event <- locate %>% 
-  select(sub_event_type, event_date, fatalities) %>% 
+  select(sub_event_type, fatalities, year) %>% 
   dplyr::group_by(sub_event_type) %>% 
   summarise(sum_fatby_event = sum(fatalities)) %>% 
   filter(sum_fatby_event != 0)
+
+#I want color to be year, but year isn't a column here for some reason... 
+
+ map_fat_sub_event <- ggplot(shap) +
+   geom_sf(data = shap) +
+   geom_sf(data = fat_sub_event, aes(color = sub_event_type))
 
 ```
 
@@ -177,5 +194,13 @@ fat_actor1 <- conflict_actor1_recode %>%
 
 #There are 173 unique actors in this spreadsheet. Calc below: 
 count <- conflict %>% select(actor1, fatalities) %>% group_by(actor1) %>% summarise(sum_fatby_actor1 = sum(fatalities)) %>% nrow()
+
+#map fat_actor1
+
+ map_fat_actor1 <- ggplot(shap) +
+   geom_sf(data = shap) +
+   geom_sf(data = fat_actor1, aes(color = recode_actor1))
+
+
 ```
 
