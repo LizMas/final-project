@@ -58,9 +58,9 @@ plot_year
 
 ```{r, 2}
 #find total fatalities by sub_event_type
+#Remember, locate is conflict but with geometry 
 
-
-fat_sub_event <- conflict %>% 
+fat_sub_event <- locate %>% 
   select(sub_event_type, event_date, fatalities) %>% 
   dplyr::group_by(sub_event_type) %>% 
   summarise(sum_fatby_event = sum(fatalities)) %>% 
@@ -71,9 +71,9 @@ fat_sub_event <- conflict %>%
 ```{r}
 #recode actor1 
 
-conflict$actor1 <- as.factor(conflict$actor1)
+locate$actor1 <- as.factor(locate$actor1)
 
-conflict_actor1_recode <- conflict %>% 
+conflict_actor1_recode <- locate%>% 
   mutate(recode_actor1 = fct_recode(actor1,
       "Military Forces of Yemen" = "Military Forces of Yemen (2016-) Supreme Political Council",
   "Military Forces of Yemen" = "Military Forces of Yemen (2012-)",
@@ -174,5 +174,8 @@ fat_actor1 <- conflict_actor1_recode %>%
   arrange(desc(sum_fatby_actor1)) %>% 
   #head 9 because that's where it stops getting interesting number-wise
   head(9)
+
+#There are 173 unique actors in this spreadsheet. Calc below: 
+count <- conflict %>% select(actor1, fatalities) %>% group_by(actor1) %>% summarise(sum_fatby_actor1 = sum(fatalities)) %>% nrow()
 ```
 
