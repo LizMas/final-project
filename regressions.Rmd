@@ -1,5 +1,5 @@
 ---
-title: "regressions for final project"
+title: "visualizations, regressions for final project"
 output: html_document
 ---
 
@@ -49,26 +49,130 @@ avg_fat_per_year
 
 plot_year <- ggplot(conflict, aes(x = year, y = fatalities)) +
   geom_col() +
-  labs(title = "Fatalities in the Yemeni Civil War Per Day", subtitle = "An average of 8716 people have died each year from conflict alone", x = "Date", y = "Fatalities", caption = "Source: Data from ACLED, https://www.acleddata.com/tag/yemen/")
+  labs(title = "Fatalities in the Yemeni Civil War Per Year", subtitle = "An average of 8716 people have died each year from conflict alone", x = "Date", y = "Fatalities", caption = "Source: Data from ACLED, https://www.acleddata.com/tag/yemen/")
 
 plot_year
-
-#find average fatalities by sub_event_type
-
-#this will take some more work; group_by isn't behaving properly... 
-
-fat_sub_event <- conflict %>% 
-  select(sub_event_type, event_date, fatalities) %>% 
-  group_by("sub_event_type") 
 
 
 ```
 
 ```{r, 2}
+#find total fatalities by sub_event_type
 
 
-
+fat_sub_event <- conflict %>% 
+  select(sub_event_type, event_date, fatalities) %>% 
+  dplyr::group_by(sub_event_type) %>% 
+  summarise(sum_fatby_event = sum(fatalities)) %>% 
+  filter(sum_fatby_event != 0)
 
 ```
 
+```{r}
+#recode actor1 
+
+conflict$actor1 <- as.factor(conflict$actor1)
+
+conflict_actor1_recode <- conflict %>% 
+  mutate(recode_actor1 = fct_recode(actor1,
+      "Military Forces of Yemen" = "Military Forces of Yemen (2016-) Supreme Political Council",
+  "Military Forces of Yemen" = "Military Forces of Yemen (2012-)",
+  "Saudi Coalition Operations" = "Operation Restoring Hope",
+  "Unidentified Militias" = "Unidentified Armed Group (Yemen)",
+  "Military Forces of Yemen" = "Military Forces of Yemen (2012-) Security Belt Forces",
+  "Military Forces of Yemen" = "Military Forces of Yemen (2012-) Hadhrami Elite Forces",
+  "Unidentified Militias" = "Unidentified Tribal Militia (Yemen)",
+"Pro-Government Militias" = "Hujur Tribal Militia (Yemen)",
+"Military Forces of Yemen" = "Military Forces of Yemen (2015-2016) Supreme Revolutionary Committee",
+"Pro-Government Militias" = "National Resistance Forces",
+"Pro-Government Militias" = "Popular Resistance",
+"Separatist Militias" = "Southern Resistance", 
+"Saudi Coalition Operations" = "Operation Decisive Storm",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) Security Belt Forces",
+"Pro-Government Militias" = "Militia (Abu al Abbas)", 
+"Military Forces of Yemen" = "Unidentified Military Forces",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) 35th Armored Brigade",
+"Police Forces of Yemen" = "Police Forces of Yemen (2012-)",
+"Pro-Government Militias" = "Bilharith Tribal Militia (Yemen)",
+"Separatist Militias" = "Houthi Movement - Ansar Allah", 
+"Pro-Government Militias" = "Militia (Pro-Government)",
+"Pro-Government Militias" = "Al Humayqani Tribal Militia (Yemen)",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) Shabwani Elite Forces",
+"Military Forces of Yemen" = "Military Forces of Yemen (2016-) Republican Guard",
+#Anwar al-Awlaki 
+"Al-Qaeda and Affiliates" = "Al Awlaki Tribal Militia (Yemen)",
+"Al-Qaeda and Affiliates" = "AQAP: Al Qaeda in the Arabian Peninsula	",
+#STC alligned
+"Separatist Militias" = "Subaihi Tribal Militia (Yemen)",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) Presidential Guard",
+"Military Forces of Yemen", "Military Forces of Yemen (2012-) Border Guard",
+"Police Forces of Yemen", "Police Forces of Yemen (2015-2016) Special Security Forces",
+"Military Forces of Yemen", "Military Forces of Yemen (2012-) 17th Infantry Brigade",
+"Pro-Government Militias" = "Al Islah Party",
+"Pro-Government Militias" = "Giants Brigade",
+"Islamic State and Affiliates" = "Ansar al Sharia (Yemen)",
+"Islamic State and Affiliates" = "Islamic State (Yemen)",
+"Pro-Government Militias" = "Tihama Resistance",
+"Police Forces of Yemen" = "Police Forces of Yemen (2016-) Supreme Political Council",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) 22nd Armored Brigade",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) 30th Brigade",
+"Pro-Government Militias" = "Militia (Hamoud Saeed al Mikhlafi)",
+"Protesters/ Rioters" = "Rioters (Yemen)",
+"Protesters/ Rioters" = "Protesters (Yemen)",
+"Unidentified Militias" = "Al al Amir Tribal Militia (Yemen)",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) 170th Air Defence Brigade",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) Saiqa Brigades",
+#was UAE backed before withdrawal 
+"Separatist Militias" = "Southern Movement",
+"Military Forces of Yemen" = "Military Forces of Yemen (2015-2016) Republican Guard", 
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) 102nd Brigade",
+#aligned with Hajouri against Houthis as of Mar 2019
+"Pro-Government Militias" = "Murad Tribal Militia (Yemen)",
+"Unidentified Militias" = "Unidentified Communal Militia (Yemen)",
+"Unknown Affiliation" = "Lawdar Communal Militia (Yemen)",
+"Unknown Affiliation" = "Azal Resistance",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) Political Security Organisation", 
+#Saudi-backed, Salafi, likely AQAP affiliated 
+"Pro-Government Militias" = "Militia (Al Mihdhar)",
+"Unknown Affiliation" = "Bani Khawlah Tribal Militia (Yemen)",
+"Unknown Affiliation" = "Riyam Tribal Militia (Yemen)",
+"Unknown Affiliation" = "Al Abyadh Communal Militia (Yemen)",
+"Unknown Affiliation" = "Al Ghanam Tribal Militia (Yemen)",
+"Unknown Affiliation" = "Al Jalal Tribal Militia (Yemen)",
+"Unknown Affiliation" = "Al Jalal Tribal Militia (Yemen)",
+"Unknown Affiliation" = "Al Jaradi Tribal Militia (Yemen)",
+"Unknown Affiliation" = "Al Udhr Tribal Militia (Yemen)",
+"Unknown Affiliation" = "Al Warawirah Tribal Militia (Yemen)",	
+"Unknown Affiliation" = "Ba Awdah Tribal Militia (Yemen)",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) 63rd Brigade",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) 9th Brigade",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) Coast Guard",
+"Unknown Affiliation" = "Militia (Mukhtar al Zurayqi)",
+"Unknown Affiliation" = "Ubaydah Tribal Militia (Yemen)",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) Support and Reinforcement Brigade",
+"Unknown Affiliation" = "As Silah Communal Militia (Yemen)",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) 4th Brigade",
+"Unknown Affiliation" = "Al Hussein bin Mohammed Tribal Militia (Yemen)",
+#I stopped with the Unknown Affiliations here because there were 20 more with only 1 reported fatality each 
+"Military Forces of Yemen" = "MIlitary Forces of Yemen (2012-)",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) Counter-Terrorism Unit",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) Republican Guard",
+"Police Forces of Yemen" = "Police Forces of Yemen (2015-2016) Prison Guards",
+"Military Forces of Yemen" = "Military Forces of Yemen (2012-) Tihami Elite Forces",
+"Police Forces of Yemen" = "Police Forces of Yemen (2016-) Prison Guards",
+"Police Forces of Yemen" = "Police Forces of Yemen (2016-) Special Security Forces" ))
+
+#later: count by grouped actor1 and write blurb about complicated militia groupings ; PGM just means anti-Houthi... 
+
+#find total fatalities by actor1
+
+fat_actor1 <- conflict_actor1_recode %>% 
+  select(recode_actor1, event_date, fatalities) %>% 
+  dplyr::group_by(recode_actor1) %>% 
+  summarise(sum_fatby_actor1 = sum(fatalities)) %>% 
+  filter(sum_fatby_actor1 != 0) %>% 
+  arrange(desc(sum_fatby_actor1)) %>% 
+  #head 9 because that's where it stops getting interesting number-wise
+  head(9)
+```
 
