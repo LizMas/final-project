@@ -1,0 +1,51 @@
+---
+title: "idp_regression"
+output: html_document
+---
+
+```{r setup, include=FALSE, cache=TRUE}
+knitr::opts_chunk$set(echo = FALSE) 
+
+library(readr)
+library(readxl)
+library(tidyverse)
+
+idp <- read_csv("raw-data_2/idp.csv", skip = 1, col_types = cols(
+  .default = col_character(),
+  Date_of_Assessment = col_logical(),
+  Encoding_Date = col_logical(),
+  `Total_#_of_HH` = col_double(),
+  Displacement_Date = col_date(format = ""),
+  In_School_Buildings = col_double(),
+  In_Health_Facilities = col_double(),
+  In_Religious_Buildings = col_double(),
+  In_Other_Private_Building = col_double(),
+  In_Other_Public_Building = col_double(),
+  In_Settlements = col_double(),
+  `In_Isolated/dispersed_settlements` = col_double(),
+  In_Rented_Accommodation = col_double(),
+  With_Host_Families_Relatives = col_double(),
+  With_Host_Families_not_Relatives = col_double(),
+  In_Second_Home = col_double(),
+  In_Original_Home = col_logical()
+))
+
+conflict <- read_csv("raw-data_2/1900-01-01-2019-10-17-Yemen.csv", col_types = cols(
+  .default = col_character(),
+  data_id = col_double(),
+  iso = col_double(),
+  event_id_no_cnty = col_double(),
+  event_date = col_date(format = ""),
+  year = col_double(),
+  time_precision = col_double(),
+  inter1 = col_double(),
+  inter2 = col_double(),
+  interaction = col_double(),
+  admin3 = col_logical(),
+  latitude = col_double(),
+  longitude = col_double(),
+  geo_precision = col_double(),
+  fatalities = col_double(),
+  timestamp = col_double()
+))
+```
