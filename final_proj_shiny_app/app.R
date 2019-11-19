@@ -12,10 +12,10 @@ library(shinyBS)
 library(tidyverse)
 
 ui <- fluidPage(
-                h2(textOutput("currentTime")),
+               # h2(textOutput("currentTime")),
   
   
-    navbarPage("Fatalities in the Yemeni Civil War",
+    navbarPage("Fatalities in the Yemeni Civil War, Summer 2019",
                theme = shinytheme("flatly"),
                position = "static-top",
                
@@ -35,12 +35,13 @@ ui <- fluidPage(
      # textOutput("destTitle")
     #),
                tabPanel("Running map",
-                        h5("Source:")),
+                        imageOutput("map")),
                tabPanel("Interactive maps",
-                        imageOutput("image")),
+                       imageOutput("image")),
                 tabPanel("Regression stuff",
                          imageOutput("imagereg")),
                 tabPanel("About",
+                         #do I save an object for about text and then call it here? How do I do that? 
                          h5("about text"))))
 
 
@@ -50,9 +51,9 @@ server <- function(input, output, session) {
     invalidateLater(1000, session)
     paste("The War in Yemen has been going on for:", Sys.time())
   })
-  #this is where map will go, replacing loc.gif
-    output$image <- renderImage({
-        list(src = "loc.gif",
+  #this is where map will go 
+    output$map <- renderImage({
+        list(src = "map.gif",
              contentType = "image/gif")}, deleteFile = FALSE)}
 
 
