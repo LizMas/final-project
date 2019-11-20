@@ -19,13 +19,38 @@ library(maptools)
 library(rgdal)
 library(gifski)
 library(tidyverse)
+
+#why should I have to load this in again? 
+
+here()
+
+conflict <- read_csv("raw-data_2/1900-01-01-2019-10-17-Yemen.csv", col_types = cols(
+  .default = col_character(),
+  data_id = col_double(),
+  iso = col_double(),
+  event_id_no_cnty = col_double(),
+  event_date = col_date(format = ""),
+  year = col_double(),
+  time_precision = col_double(),
+  inter1 = col_double(),
+   inter2 = col_double(),
+  interaction = col_double(),
+  admin3 = col_logical(),
+  latitude = col_double(),
+  longitude = col_double(),
+  geo_precision = col_double(),
+  fatalities = col_double(),
+  timestamp = col_double()
+))
+  
 ```
 
-```{r fatalities, cache = TRUE, message = FALSE, echo = FALSE, warning = FALSE}}
+```{r, fatalities, cache=TRUE, message=FALSE, echo=FALSE, warning=FALSE}
 
 #just focusing on UNDATED conflict data here: 
 
 #find average fatalities per day 
+
 
 avg_fat_per_day <- conflict %>% 
   group_by(event_date) %>% 
@@ -71,8 +96,12 @@ plot_year
 #find total fatalities by sub_event_type
 #Remember, locate is conflict but with geometry 
 
-fat_sub_event <- locate %>% 
-  select(sub_event_type, fatalities, year) %>% 
+locate_all <- read_rds("clean-data_2/locations.rds")
+
+shap <- read_rds("clean-data_2/shape.rds")
+
+fat_sub_event <- locate_all %>% 
+  select(sub_event_type, fatalities) %>% 
   dplyr::group_by(sub_event_type) %>% 
   summarise(sum_fatby_event = sum(fatalities)) %>% 
   filter(sum_fatby_event != 0)
@@ -85,12 +114,12 @@ fat_sub_event <- locate %>%
 
 ```
 
-```{r}
+```{r, recode actors}
 #recode actor1 
 
-locate$actor1 <- as.factor(locate$actor1)
+locate_all$actor1 <- as.factor(locate_all$actor1)
 
-conflict_actor1_recode <- locate%>% 
+conflict_actor1_recode <- locate_all %>% 
   mutate(recode_actor1 = fct_recode(actor1,
       "Military Forces of Yemen" = "Military Forces of Yemen (2016-) Supreme Political Council",
   "Military Forces of Yemen" = "Military Forces of Yemen (2012-)",
@@ -181,6 +210,10 @@ conflict_actor1_recode <- locate%>%
 
 #later: count by grouped actor1 and write blurb about complicated militia groupings ; PGM just means anti-Houthi... 
 
+```
+
+```{r, fat by actor and map}
+
 #find total fatalities by actor1
 
 fat_actor1 <- conflict_actor1_recode %>% 
@@ -200,7 +233,51 @@ count <- conflict %>% select(actor1, fatalities) %>% group_by(actor1) %>% summar
  map_fat_actor1 <- ggplot(shap) +
    geom_sf(data = shap) +
    geom_sf(data = fat_actor1, aes(color = recode_actor1))
+ map_fat_actor1
 
 
+```
+
+
+```{r, show and save maps}
+
+#call maps for app.R 
+
+ map_fat_actor1
+
+ map_fat_sub_event
+ 
+#write rds for the maps 
+ 
+write_rds(map_fat_actor1, "final_proj_shiny_app/map_fat_actor1.rds")
+
+write_rds(map_fat_sub_event, "final_proj_shiny_app/map_fat_sub_event.rds")
+
+```
+
+
+```{r}
+fat_actor1_model <- conflict_actor1_recode %>% 
+  select(recode_actor1, event_date, fatalities) %>% 
+  dplyr::group_by(recode_actor1) %>% 
+  summarise(sum_fatby_actor1 = sum(fatalities)) %>% 
+  filter(sum_fatby_actor1 != 0) %>% 
+  arrange(desc(sum_fatby_actor1)) %>% 
+  #head 9 because that's where it stops getting interesting number-wise
+  head(9) %>% 
+  mutate(progov_militias = ifelse(recode_actor1 =="Pro-Government Militias", 1, 0))
+
+#this throws an error. Goal: make lm for fatalities and PGMs: 
+model_pgm <-  lm(sum_fatby_actor1 ~ recode_actor1, data = fat_actor1_model)
+
+model_pgm
+
+
+
+#model_data <- conflict_actor1_recode$progov_militias <- ifelse(conflict_actor1_recode$recode_actor1 =="Pro-Government Militias", 1, 0) 
+
+#model <- lm(fatalities ~ recode_actor1, data = model_data)
+
+#conflict_actor1_recode %>% mutate(progov_militias = ifelse(recode_actor1 =="Pro-Government Militias", 1, 0))
 ```
 

@@ -22,7 +22,7 @@ library(tidyverse)
 
 ```{r, cache = TRUE, message = FALSE, echo = FALSE, warning = FALSE}
 
-conflict <- read_csv("1900-01-01-2019-10-17-Yemen.csv", col_types = cols(
+conflict <- read_csv("raw-data_2/1900-01-01-2019-10-17-Yemen.csv", col_types = cols(
   .default = col_character(),
   data_id = col_double(),
   iso = col_double(),
@@ -40,6 +40,17 @@ conflict <- read_csv("1900-01-01-2019-10-17-Yemen.csv", col_types = cols(
   fatalities = col_double(),
   timestamp = col_double()
 ))
+
+```
+
+```{r, date}
+
+#only use this info for the animated map, not the other things 
+
+conflict_dated <- conflict %>% 
+      select("event_date", "event_type", "sub_event_type", "actor1", "admin2", "location", "latitude", "longitude", "fatalities") %>% 
+      filter(event_date >= as.Date("2019-07-01"))
+
 
 ```
 
@@ -64,12 +75,23 @@ shape <- st_read("yem_admbnda_adm1_govyem_cso_20191002.shp")
 
 ```{r}
 
-#create locations using conflict data
+#create locations using conflict data, dated for the summer
+
+locations_dated <- st_as_sf(conflict_dated, coords = c("longitude", "latitude"), crs = 4326) 
+
+write_rds(locations_dated, "clean-data_2/locations_dated.rds")
+write_rds(shape, "clean-data_2/shape.rds")
+
+```
+
+```{r}
+#create locations using conflict data- all for dataset
 
 locations <- st_as_sf(conflict, coords = c("longitude", "latitude"), crs = 4326) 
 
 write_rds(locations, "clean-data_2/locations.rds")
 write_rds(shape, "clean-data_2/shape.rds")
+
 
 ```
 
