@@ -17,17 +17,6 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                 br(),
                 
     navbarPage("Conflict in the Yemeni Civil War",
-          
-    #show pop-up about- is broken, fix later
-   # bsModal(
-    #    id = "tutorialModal",
-     #   title = "",
-      #  trigger = "",
-        #img(src = "whatever-image.jpg",
-        # style = "display: block; margin-left: auto; margin-right: auto;",
-        #height = "120",
-        #width = "120"),
-      #htmlOutput("tutorial")),
     
               tabPanel("Fatalities",
                  titlePanel("Fatalities in the Yemeni Civil War, Summer 2019"),
@@ -44,14 +33,13 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                       sidebarPanel(
                                         selectInput("recode_actor1",
                                                     "Actor:",
-                                              choices = sort(unique(map_fat_actor1$fat_actor1)),
+                                              choices = sort(unique(fat_actor1$recode_actor1)),
                                               selected = "Pro-Goverment Militias")),
                                       mainPanel(
-                                        plotOutput("map_fat_actor1.rds")
+                                        plotOutput("fat_actor1")
                                         
                                       )
-                        )
-               ),
+                        )),
     #this is the fat by event type dropdown (2)
     
     tabPanel("Fatalities by Event Type",
@@ -59,15 +47,19 @@ ui <- fluidPage(theme = shinytheme("flatly"),
              ),
              sidebarLayout(position = "right",
                            sidebarPanel(
-                             selectInput("event_type",
+                             selectInput("fat_sub_event",
                                          "Event Type:",
-                                         choices = sort(unique(map_fat_actor1$fat_actor1)),
+                                         choices = sort(unique(fat_sub_event$sub_event_type)),
                                          selected = "Air/drone strike")),
                            mainPanel(
-                             plotOutput("map_fat_actor1.rds")
+                             plotOutput("fat_sub_event")
                              
                            )
              )),
+    
+    #regression will go here: 
+tabPanel("Analytics"),
+
 tabPanel("About",
          mainPanel(
            h2("The Data"),
@@ -103,6 +95,14 @@ output$fat_actor1 <- renderPlot({
     geom_sf(data = shap) +
     geom_sf(data = fat_actor1, aes(color = recode_actor1))
   map_fat_actor1
+  
+})
+
+output$fat_sub_event <- renderPlot({
+  map_fat_sub_event <- ggplot(shap) +
+    geom_sf(data = shap) +
+    geom_sf(data = fat_sub_event, aes(color = sub_event_type))
+  map_fat_sub_event
   
 })
 
