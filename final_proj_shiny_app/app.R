@@ -14,7 +14,6 @@ library(tidyverse)
 ui <- fluidPage(theme = shinytheme("flatly"),
                 position = "static-top",
                 
-                br(),
                 
     navbarPage("Conflict in the Yemeni Civil War",
     
@@ -58,7 +57,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
              )),
     
     #regression will go here: 
-tabPanel("Analytics"),
+tabPanel("Analysis"),
 
 tabPanel("About",
          mainPanel(
@@ -93,7 +92,7 @@ server <- function(input, output, session) {
 output$fat_actor1 <- renderPlot({
   map_fat_actor1 <- ggplot(shap) +
     geom_sf(data = shap) +
-    geom_sf(data = fat_actor1, aes(color = recode_actor1))
+    geom_sf(data = fat_actor1, aes(color = recode_actor1, fill = recode_actor1))
   map_fat_actor1
   
 })
@@ -101,7 +100,7 @@ output$fat_actor1 <- renderPlot({
 output$fat_sub_event <- renderPlot({
   map_fat_sub_event <- ggplot(shap) +
     geom_sf(data = shap) +
-    geom_sf(data = fat_sub_event, aes(color = sub_event_type))
+    geom_sf(data = fat_sub_event, aes(color = sub_event_type, fill = sub_event_type))
   map_fat_sub_event
   
 })
