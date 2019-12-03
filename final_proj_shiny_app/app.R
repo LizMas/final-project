@@ -139,12 +139,20 @@ map_fat_actor1 <- ggplot(shap) +
 
 #for toggle jitter plot 
 
-xx <- fat_actor1 %>% 
-  filter(recode_actor1 %in% c("Military Forces of Yemen", "Saudi Coalition Operations", "Pro-Government Militias", "Unidentified Militias", "Islamic State and Affiliates", "Sepratist Militias", "Unidentified Militias")) %>% 
-  group_by(recode_actor1)
+#xx <- fat_actor1 %>% 
+#  filter(recode_actor1 %in% c("Military Forces of Yemen", "Saudi Coalition Operations", "Pro-Government Militias", "Unidentified Militias", "Islamic State and Affiliates", "Sepratist Militias", "Unidentified Militias")) %>% 
+#  group_by(recode_actor1)
 
-#load in the .png for fig1
-readPNG(file.path("fig1.png"))
+#this is for the slider graph 
+
+#xx <- fat_actor1 %>% filter(recode_actor1 %in% c("Military Forces of Yemen", "Saudi Coalition Operations", "Pro-Government Militias", "Unidentified Militias", "Islamic State and Affiliates", "Sepratist Militias", "Unidentified Militias")) %>%
+#  group_by(recode_actor1)
+
+#xx$fatalities <- as.factor(xx$fatalities)
+
+#xxyear <- xx %>% group_by(year)
+
+
 
  
 #shiny app starts here --------------------------------
@@ -175,7 +183,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                               selected = "Pro-Goverment Militias")),
                                       mainPanel(
                                         plotOutput("fat_actor1"),
-                                        plotOutput("jitter_actor")
+                                        plotOutput("fat_actor_slider")
                                         
                                       )
                         )),
@@ -210,9 +218,6 @@ tabPanel("About",
                                                 
            
          ))))
-         
-         #titlePanel("Fatalities in the Yemeni Civil War, Summer 2019"),
-         #imageOutput("map"))))
 
 
 server <- function(input, output, session) {
@@ -238,6 +243,8 @@ server <- function(input, output, session) {
     #this is where map_fat_by_actor1 goes
 
 output$fat_actor1 <- renderPlot({
+  fat_actor1 <- fat_actor1 %>% filter(recode_actor1 == input$recode_actor1)
+
   map_fat_actor1 <- ggplot(shap) +
     geom_sf(data = shap) +
     geom_sf(data = fat_actor1, aes(color = recode_actor1, fill = recode_actor1))
@@ -245,9 +252,21 @@ output$fat_actor1 <- renderPlot({
   
 })
 
+#slider for fatalities by actor 
+
+#output$fat_actor_slider <- renderPlot({
+  
+#  slider_actor <- xxyear %>% 
+#    ggplot(aes(x = recode_actor1, y = xxyear$fatalities, color = recode_actor1, fill = recode_actor1)) +
+#    geom_col() +
+#    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+# slider_actor
+#  })
+
 
 #ggplot vs plot_ly- watch datacamp 
 output$fat_sub_event <- renderPlot({
+  fat_sub_event <- fat_sub_event %>% filter(sub_event_type == input$map_fat_sub_event)
   map_fat_sub_event <- ggplot(shap) +
     geom_sf(data = shap) +
     geom_sf(data = fat_sub_event, aes(color = sub_event_type, fill = sub_event_type))
