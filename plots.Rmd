@@ -1,0 +1,70 @@
+---
+title: "fatality_tables"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(gt)
+library(wesanderson)
+library(tidyverse) 
+```
+
+```{r}
+
+fat_actor1 <- conflict_actor1_recode %>% 
+  select(recode_actor1, event_date, fatalities, year) %>% 
+  dplyr::group_by(recode_actor1) %>% 
+  mutate(sum_fatby_actor1 = sum(fatalities)) %>% 
+  filter(sum_fatby_actor1 != 0) %>% 
+  arrange(desc(sum_fatby_actor1)) %>% 
+  #head 9 because that's where it stops getting interesting number-wise
+  head(9)
+
+fat_actor1_2 <- conflict_actor1_recode %>% 
+  select(recode_actor1, event_date, fatalities, year) %>% 
+  dplyr::group_by(recode_actor1) %>% 
+  mutate(sum_fatby_actor1 = sum(fatalities)) %>% 
+  filter(sum_fatby_actor1 != 0) %>% 
+  arrange(desc(sum_fatby_actor1))
+
+gt_actor2 <- gt(data = fat_actor1) %>% tab_header(title = "Total Attributable Fatalities per Actor", subtitle = "The top three actors are responsible for 92% of fatalities")%>% cols_label(recode_actor1 = "Actor", sum_fatby_actor1 = "Total Fatalities") %>% tab_source_note(source_note = "Source: Data from ACLED, https://www.acleddata.com/tag/yemen/") %>%  tab_options(
+    table.font.size = "small") %>% cols_align("center", columns = TRUE) %>% gtsave("gt_actor2.html", inline_css = TRUE)
+
+yy <- fat_actor1_2 %>% select(year, recode_actor1, fatalities) %>% group_by(year) %>% mutate(actor_fat_year = sum(fatalities)) %>% group_by(recode_actor1) %>% arrange(desc(actor_fat_year)) %>% filter(recode_actor1 %in% c("Military Forces of Yemen", "Unknown Affiliation", "Unidentified Militias", "Pro-Government Militias", "Islamic State and Affiliates", "AQAP: Al Qaeda in the Arabian Peninsula", "Separatist Militias", "Military Forces of the United States", "Saudi Coalition Operations"))
+
+custom.col <- c("lavenderblush4", "orange3","chocolate4", "slategrey", "tomato4", "rosybrown4", "lightcyan4", "gray22")
+
+
+plot_actor_col <- ggplot(yy, aes(x = year, y = yy$actor_fat_year, color = recode_actor1, fill = recode_actor1)) +
+  geom_col() +
+ scale_color_manual(values = custom.col)+
+ scale_fill_manual(values = custom.col) +
+  labs(title = "Total Attributable Fatalities per Actor", caption = "Source: Data from ACLED, https://www.acleddata.com/tag/yemen/") + xlab("Year")+ ylab("Fatalities") + labs(fill= "Actor", color = "Actor") +
+  scale_y_discrete()
+
+
+png(filename="plot_actor_col.png")
+plot(plot_actor_col)
+dev.off()
+```
+
+```{r}
+
+y <- conflict %>% select(year, sub_event_type, fatalities) %>% group_by(sub_event_type) %>%  mutate(event_fat_year = sum(fatalities)) %>% group_by(year) %>% arrange(desc(event_fat_year)) %>% filter(sub_event_type %in% c("Armed Clash", "Air/drone strike", "Shelling/artillery/missile attack", "Government regains territory", "Remote explosive/landmine/IED"))
+
+#save this one as png
+plot_event_col <- ggplot(y, aes(x = year, y = event_fat_year, color = sub_event_type, fill = sub_event_type)) +
+  geom_col() +
+ scale_fill_manual(values=wes_palette(n=4, name="Moonrise2")) +
+  scale_color_manual(values=wes_palette(n=4, name="Moonrise2")) +
+    labs(title = "Total Attributable Fatalities per Event Type", subtitle = "The four deadliest attack types are represented", caption = "Source: Data from ACLED, https://www.acleddata.com/tag/yemen/") + xlab("Year")+ ylab("Fatalities") + labs(fill= "Event Type", color = "Event Type") +
+  scale_y_discrete()
+
+png(filename="plot_event_col.png")
+plot(plot_event_col)
+dev.off()
+
+```
+

@@ -172,7 +172,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                 position = "static-top",
                 
                 
-    navbarPage("Conflict in the Yemeni Civil War",
+    navbarPage("Fatalities in Yemen's Civil War",
     
               tabPanel("Fatalities",
                  titlePanel("Fatalities in the Yemeni Civil War"),
@@ -181,8 +181,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                     Since then, Saudi Arabia, the UAE, Bahrain, the United States, the United Kingdom, France, Iran, and others have participated by providing material, logistic, intelligence, or other forms of support to certain factions. The war has plunged Yemen into the world’s largest humanitarian disaster. Between conflict and famine, ACLED estimates that the war has killed over 100,000 Yemenis."),
                  h4("Snapshot of Fatalities during Summer 2019"),
                  h6("Heightened geopolitical tensions corresponded with high intensity conflict."),
-                div(style = "margin-top = -8em",
-                 imageOutput("map")),
+                 imageOutput("map"),
                  imageOutput("fig_fatalities")),  
     
     
@@ -193,17 +192,21 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                tabPanel("Fatalities by Actor",
                         titlePanel("Fatalities by Actor"),
                         h5("The Yemeni civil war is incredibly complex; ACLED recorded 173 unique actors since 2015. These actors include governments, state-sanctioned proxies, militias, and terrorist organizations, with the lines between groups often blurry. To make sense of this, I sorted all 173 groups with attributable fatalities greater than 5 into 9 affiliations. Select these actors in the drop-down menu below to see where they committed attacks."),
-                        sidebarLayout(position = "right",
+                        sidebarLayout(position = "right", 
                                       sidebarPanel(
                                         selectInput("recode_actor1",
                                                     "Actor:",
                                               choices = sort(unique(fat_actor1$recode_actor1)),
-                                              selected = "Pro-Goverment Militias",
-                                              multiple = FALSE,
+                                              selected = "Pro-Goverment Militias"
+                                              
                                               )),
                                       mainPanel(
                                         plotOutput("fat_actor1"),
-                                        
+                                        htmlOutput("model2"),
+                                        br(),
+                                        br(),
+                                        br(),
+                                        imageOutput("col_actor")
                                       )
                                       
                         )),
@@ -214,11 +217,11 @@ ui <- fluidPage(theme = shinytheme("flatly"),
              h5("In most asymmetric conflicts, actors employ different lethal methods depending on what they have at their disposal. The Saudi-led coalition mainly utilizes airpower like drone strikes, with support from their coalition partners, while less well-funded actors like militias resort to smaller artillery and bomb attacks. Select these attack types in the drop-down menu below to see where they occurred."),
              sidebarLayout(position = "right",
                            sidebarPanel(
-                             selectInput("map_fat_sub_event",
+                             radioButtons("map_fat_sub_event",
                                          "Event Type:",
                                          choices = sort(unique(fat_sub_event$sub_event_type)),
                                          selected = "Air/drone strike",
-                                         multiple = TRUE)),
+                                         )),
                            mainPanel(
                              plotOutput("fat_sub_event")
                              
@@ -278,10 +281,7 @@ tabPanel("About",
 
 server <- function(input, output, session) {
   toggleModal(session, "tutorialModal", toggle = "open")
-  
-  #This is for the pop-up 
-  output$tutorial <- renderText({
-    HTML("Text for About Page goes here")})
+
   
   #this is where map goes 
     output$map <- renderImage({
@@ -322,14 +322,23 @@ server <- function(input, output, session) {
       filename5 <- "ACLED.png"
       list(src = filename5)
     }, deleteFile = FALSE)
+    
+    #This is a geom_col of fatalities by actor for interactive map tab 
+    
+    output$col_actor <- renderImage({
+      filename6 <- "plot_actor_col.png"
+      list(src = filename6, height="100%", width="105%", style="display: block; margin-left: auto; margin-right: auto;")
+    }, deleteFile = FALSE)
+    
     #this is where map_fat_by_actor1 goes
 
 output$fat_actor1 <- renderPlot({
   fat_actor1 <- fat_actor1 %>% filter(recode_actor1 == input$recode_actor1)
-
+  group_colors <- c("Unknown Affiliation" = "#333BFF", "Unidentified Militias" = "#CC6600", "Pro-Government Militias" ="#9633FF", "Islamic State and Affiliates" = "#E2FF33", E = "#E3DB71")
   map_fat_actor1 <- ggplot(shap) +
     geom_sf(data = shap) +
-    geom_sf(data = fat_actor1, aes(color = recode_actor1, fill = recode_actor1))
+    geom_sf(data = fat_actor1, aes(color = recode_actor1, fill = recode_actor1)) #+
+    #scale_fill_manual(values=group_colors)
   map_fat_actor1
   
 })
@@ -346,18 +355,16 @@ output$model <- renderUI({
   
 })
 
-#slider for fatalities by actor 
+#here is html of actor table for fatalities by actor tab
+getPage2 <- function() {
+  return(includeHTML("gt_actor2.html"))
+  
+}
 
-output$fat_actor_slider <- renderPlot({
+output$model2 <- renderUI({
+  getPage2()
   
-  fat_actor_slider <- xxyear %>% filter(year == input$year)
-  
-  fat_slider_actor <- xxyear %>% 
-    ggplot(aes(x = recode_actor1, y = xxyear$fatalities, color = recode_actor1, fill = recode_actor1)) +
-    geom_col() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
- slider_actor
-  })
+})
 
 
 #ggplot vs plot_ly- watch datacamp 
