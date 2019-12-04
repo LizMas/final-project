@@ -152,6 +152,32 @@ map_fat_actor1 <- ggplot(shap) +
 
 #xxyear <- xx %>% group_by(year)
 
+#This is the data for the regression page 
+
+pgm <- conflict_actor1_recode %>% 
+  select(recode_actor1, event_date, fatalities) %>% 
+  dplyr::group_by(recode_actor1) %>% 
+  mutate(sum_fatby_actor1 = sum(fatalities)) %>% 
+  filter(sum_fatby_actor1 != 0) %>% 
+  arrange(desc(sum_fatby_actor1)) %>% 
+  mutate(progov_militias = ifelse(recode_actor1 =="Pro-Government Militias", 1, 0))
+
+saudi <- conflict_actor1_recode %>% 
+  select(recode_actor1, event_date, fatalities) %>% 
+  dplyr::group_by(recode_actor1) %>% 
+  mutate(sum_fatby_actor1 = sum(fatalities)) %>% 
+  filter(sum_fatby_actor1 != 0) %>% 
+  arrange(desc(sum_fatby_actor1)) %>% 
+  mutate(saudi_ops = ifelse(recode_actor1 =="Saudi Coalition Operations", 1, 0))
+
+yemen_gov <- conflict_actor1_recode %>% 
+  select(recode_actor1, event_date, fatalities) %>% 
+  dplyr::group_by(recode_actor1) %>% 
+  mutate(sum_fatby_actor1 = sum(fatalities)) %>% 
+  filter(sum_fatby_actor1 != 0) %>% 
+  arrange(desc(sum_fatby_actor1)) %>% 
+  mutate(yemen_ops = ifelse(recode_actor1 =="Military Forces of Yemen", 1, 0))
+
 
 
  
@@ -180,12 +206,25 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                         selectInput("recode_actor1",
                                                     "Actor:",
                                               choices = sort(unique(fat_actor1$recode_actor1)),
-                                              selected = "Pro-Goverment Militias")),
+                                              selected = "Pro-Goverment Militias",
+                                              multiple = TRUE,
+                                              )),
                                       mainPanel(
                                         plotOutput("fat_actor1"),
-                                        plotOutput("fat_actor_slider")
+                       # sidebarLayout(position = "right",
+                        #              sidebarPanel(
+                         #               selectInput("year",
+                          #                          "Year:",
+                           #                         choices = sort(unique(fat_actor_slider$year)),
+                            #                        selected = "2015")),
+                             #         mainPanel(plotOutput("fat_actor_slider"),
+
+                                        
+                                        
+                                      
                                         
                                       )
+                                      
                         )),
     #this is the fat by event type dropdown (2)
     
@@ -196,7 +235,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                              selectInput("map_fat_sub_event",
                                          "Event Type:",
                                          choices = sort(unique(fat_sub_event$sub_event_type)),
-                                         selected = "Air/drone strike")),
+                                         selected = "Air/drone strike",
+                                         multiple = TRUE)),
                            mainPanel(
                              plotOutput("fat_sub_event")
                              
@@ -205,7 +245,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
 
     
     #regression will go here: 
-tabPanel("Analysis"),
+tabPanel("Analysis",
+         imageOutput("pgm_model")),
 
 tabPanel("About",
          mainPanel(
@@ -235,10 +276,14 @@ server <- function(input, output, session) {
     #this is a plot, just uploading an image of a graph for ease
     
     output$fig_fatalities <- renderImage({
-      filename <- "fig1.png"
+      filename <- "fig1update.png"
       list(src = filename)
     }, deleteFile = FALSE)
 
+    output$pgm_model <- renderImage({
+      filename2 <- "pgm_model.png"
+      list(src = filename2)
+    }, deleteFile = FALSE)
 
     #this is where map_fat_by_actor1 goes
 
@@ -254,14 +299,16 @@ output$fat_actor1 <- renderPlot({
 
 #slider for fatalities by actor 
 
-#output$fat_actor_slider <- renderPlot({
+output$fat_actor_slider <- renderPlot({
   
-#  slider_actor <- xxyear %>% 
-#    ggplot(aes(x = recode_actor1, y = xxyear$fatalities, color = recode_actor1, fill = recode_actor1)) +
-#    geom_col() +
-#    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
-# slider_actor
-#  })
+  fat_actor_slider <- xxyear %>% filter(year == input$year)
+  
+  fat_slider_actor <- xxyear %>% 
+    ggplot(aes(x = recode_actor1, y = xxyear$fatalities, color = recode_actor1, fill = recode_actor1)) +
+    geom_col() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+ slider_actor
+  })
 
 
 #ggplot vs plot_ly- watch datacamp 
