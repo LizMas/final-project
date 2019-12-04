@@ -246,7 +246,22 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     
     #regression will go here: 
 tabPanel("Analysis",
-         imageOutput("pgm_model")),
+         imageOutput("pgm_model"),
+         br(),
+         br(),
+         br(),
+         h5("h555555555555555"),
+         br(),
+         br(),
+         br(),
+         imageOutput("saudi_model"),
+         br(),
+         br(),
+         br(),
+         br(),
+         br(),
+         br(),
+         imageOutput("yemen_model")),
 
 tabPanel("About",
          mainPanel(
@@ -279,12 +294,28 @@ server <- function(input, output, session) {
       filename <- "fig1update.png"
       list(src = filename)
     }, deleteFile = FALSE)
+    
+    #this image is a plot of fatalities by PGMs, just uploading a png
 
     output$pgm_model <- renderImage({
       filename2 <- "pgm_model.png"
       list(src = filename2)
     }, deleteFile = FALSE)
-
+    
+    #this image is a plot of fatalities by Saudi Ops, just uploading a png
+    
+    output$saudi_model <- renderImage({
+      filename3 <- "saudi_model.png"
+      list(src = filename3)
+    }, deleteFile = FALSE)
+    
+    #this image is a plot of fatalities by Yemen Gov Ops, just uploading a png
+    
+    output$yemen_model <- renderImage({
+      filename4 <- "yemen_gov_model.png"
+      list(src = filename4)
+    }, deleteFile = FALSE)
+    
     #this is where map_fat_by_actor1 goes
 
 output$fat_actor1 <- renderPlot({
