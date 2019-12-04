@@ -188,31 +188,10 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     #here's where the two interactive maps go
     
     navbarMenu("Interactive Maps",
-               #this is the fat by actor drop down (1) 
-               tabPanel("Fatalities by Actor",
-                        titlePanel("Fatalities by Actor"),
-                        h5("The Yemeni civil war is incredibly complex; ACLED recorded 173 unique actors since 2015. These actors include governments, state-sanctioned proxies, militias, and terrorist organizations, with the lines between groups often blurry. To make sense of this, I sorted all 173 groups with attributable fatalities greater than 5 into 9 affiliations. Select these actors in the drop-down menu below to see where they committed attacks."),
-                        sidebarLayout(position = "right", 
-                                      sidebarPanel(
-                                        selectInput("recode_actor1",
-                                                    "Actor:",
-                                              choices = sort(unique(fat_actor1$recode_actor1)),
-                                              selected = "Pro-Goverment Militias"
-                                              
-                                              )),
-                                      mainPanel(
-                                        plotOutput("fat_actor1"),
-                                        htmlOutput("model2"),
-                                        br(),
-                                        br(),
-                                        br(),
-                                        imageOutput("col_actor")
-                                      )
-                                      
-                        )),
+
     #this is the fat by event type dropdown (2)
     
-    tabPanel("Fatalities by Event Type",
+       tabPanel("Fatalities by Event Type",
              titlePanel("Fatalities by Event Type"),
              h5("In most asymmetric conflicts, actors employ different lethal methods depending on what they have at their disposal. The Saudi-led coalition mainly utilizes airpower like drone strikes, with support from their coalition partners, while less well-funded actors like militias resort to smaller artillery and bomb attacks. Select these attack types in the drop-down menu below to see where they occurred."),
              sidebarLayout(position = "right",
@@ -223,12 +202,33 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                          selected = "Air/drone strike",
                                          )),
                            mainPanel(
-                             plotOutput("fat_sub_event")
-                             
+                             plotOutput("fat_sub_event"),
+                             imageOutput("col_event")
                            )
-             ))),
+             )),
 
-    
+    #this is the fat by actor drop down (1) 
+    tabPanel("Fatalities by Actor",
+             titlePanel("Fatalities by Actor"),
+             h5("The Yemeni civil war is incredibly complex; ACLED recorded 173 unique actors since 2015. These actors include governments, state-sanctioned proxies, militias, and terrorist organizations, with the lines between groups often blurry. To make sense of this, I sorted all 173 groups with attributable fatalities greater than 5 into 9 affiliations. Select these actors in the drop-down menu below to see where they committed attacks."),
+             sidebarLayout(position = "right", 
+                           sidebarPanel(
+                             selectInput("recode_actor1",
+                                         "Actor:",
+                                         choices = sort(unique(fat_actor1$recode_actor1)),
+                                         selected = "Pro-Goverment Militias"
+                                         
+                             )),
+                           mainPanel(
+                             plotOutput("fat_actor1"),
+                             imageOutput("col_actor"),
+                             br(),
+                             br(),
+                             br(), 
+                             htmlOutput("model2"),
+                           )
+                           
+             ))),
     #here are the regressions. The explanations take some work. 
     #I plan to incorporate some of my PDF work into the wording here.
     
@@ -291,28 +291,28 @@ server <- function(input, output, session) {
     #this is a plot, just uploading an image of a graph for ease
     
     output$fig_fatalities <- renderImage({
-      filename <- "fig1update.png"
+      filename <- "fig1update3.png"
       list(src = filename)
     }, deleteFile = FALSE)
     
     #this image is a plot of fatalities by PGMs, just uploading a png
 
     output$pgm_model <- renderImage({
-      filename2 <- "pgm_model.png"
+      filename2 <- "pgm_model2.png"
       list(src = filename2)
     }, deleteFile = FALSE)
     
     #this image is a plot of fatalities by Saudi Ops, just uploading a png
     
     output$saudi_model <- renderImage({
-      filename3 <- "saudi_model.png"
+      filename3 <- "saudi_model2.png"
       list(src = filename3)
     }, deleteFile = FALSE)
     
     #this image is a plot of fatalities by Yemen Gov Ops, just uploading a png
     
     output$yemen_model <- renderImage({
-      filename4 <- "yemen_gov_model.png"
+      filename4 <- "yemen_gov_model2.png"
       list(src = filename4)
     }, deleteFile = FALSE)
     
@@ -327,7 +327,14 @@ server <- function(input, output, session) {
     
     output$col_actor <- renderImage({
       filename6 <- "plot_actor_col.png"
-      list(src = filename6, height="100%", width="105%", style="display: block; margin-left: auto; margin-right: auto;")
+      list(src = filename6, height="100%", width="100%", style="display: block; margin-left: auto; margin-right: auto;")
+    }, deleteFile = FALSE)
+    
+    #This is geom_col of fatalities by event 
+    
+    output$col_event <- renderImage({
+      filename7 <- "plot_event_col.png"
+      list(src = filename7, height="100%", width="100%", style="display: block; margin-left: auto; margin-right: auto;")
     }, deleteFile = FALSE)
     
     #this is where map_fat_by_actor1 goes
