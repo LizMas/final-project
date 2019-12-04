@@ -137,21 +137,6 @@ map_fat_actor1 <- ggplot(shap) +
   geom_sf(data = shap) +
   geom_sf(data = fat_actor1, aes(color = recode_actor1))
 
-#for toggle jitter plot 
-
-#xx <- fat_actor1 %>% 
-#  filter(recode_actor1 %in% c("Military Forces of Yemen", "Saudi Coalition Operations", "Pro-Government Militias", "Unidentified Militias", "Islamic State and Affiliates", "Sepratist Militias", "Unidentified Militias")) %>% 
-#  group_by(recode_actor1)
-
-#this is for the slider graph 
-
-#xx <- fat_actor1 %>% filter(recode_actor1 %in% c("Military Forces of Yemen", "Saudi Coalition Operations", "Pro-Government Militias", "Unidentified Militias", "Islamic State and Affiliates", "Sepratist Militias", "Unidentified Militias")) %>%
-#  group_by(recode_actor1)
-
-#xx$fatalities <- as.factor(xx$fatalities)
-
-#xxyear <- xx %>% group_by(year)
-
 #This is the data for the regression page 
 
 pgm <- conflict_actor1_recode %>% 
@@ -218,17 +203,6 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                               )),
                                       mainPanel(
                                         plotOutput("fat_actor1"),
-                       # sidebarLayout(position = "right",
-                        #              sidebarPanel(
-                         #               selectInput("year",
-                          #                          "Year:",
-                           #                         choices = sort(unique(fat_actor_slider$year)),
-                            #                        selected = "2015")),
-                             #         mainPanel(plotOutput("fat_actor_slider"),
-
-                                        
-                                        
-                                      
                                         
                                       )
                                       
@@ -252,16 +226,21 @@ ui <- fluidPage(theme = shinytheme("flatly"),
              ))),
 
     
-    #regression will go here: 
+    #here are the regressions. The explanations take some work. 
+    #I plan to incorporate some of my PDF work into the wording here.
+    
 tabPanel("Analysis",
-         h5("exp of actors"), 
+         h5("The top three deadliest actors in Yemen’s Civil War are: Military Forces aligned with the recognized Yemeni Government, who are responsible for 68,104 fatalities; the Saudi-led Coalition, who are responsible for 17,717 fatalities; and Pro-Government Militias, who are responsible for 6,275. Below is a regression table of these three actors."), 
         htmlOutput("model"),
+        br(), 
+        br(),
+        br(), 
          imageOutput("pgm_model"),
          br(),
          br(),
          br(),
          br(),
-         h5("This is where analysis for PGM graph will go"),
+         h5("Pro-Government Militias have a slight negative correlation with respect to fatalities."),
          br(),
          br(),
          imageOutput("saudi_model"),
@@ -269,7 +248,7 @@ tabPanel("Analysis",
          br(),
          br(),
          br(),
-         h5("This is where analysis for saudi graph will go"),
+         h5("Saudi-Led Coalition Operations have a stronger negative correlation with respect to fatalities."),
          br(),
          br(),
          imageOutput("yemen_model"),
@@ -277,7 +256,7 @@ tabPanel("Analysis",
          br(),
          br(),
          br(),
-         h5("This is where analysis for yemen graph will go"),
+         h5("Yemen Government Operations have a positive correlation with respect to fatalities."),
          br(),
          br(),
          ),
@@ -286,6 +265,7 @@ tabPanel("About",
          mainPanel(
            h2("The Data"),
            imageOutput("acled"),
+           div(style = "padding: 0px 0px; margin-top:-2em",
            h5("The Armed Conflict Location & Event Data (ACLED) Project is a “disaggregated data collection, analysis and crisis mapping project” that has collected an incredibly detailed account of political violence and protest events. This app uses data from their collection on Yemen between 1 January 2015 (a few months before the official start of the civil war) and 8 October 2019. Please check out their work ", a("here.", href="https://www.acleddata.com/about-acled/")),
            h2("Connect"),
            h5("You can contact me at lizmasten@g.harvard.edu or connect with my on ", a("LinkedIn.", href="www.linkedin.com/in/elizabeth-masten-642567196")),
@@ -293,7 +273,7 @@ tabPanel("About",
            h5("The source code for this site can be found at my ", a("GitHub.", href="https://github.com/LizMas")),
                                                 
            
-         ))))
+         )))))
 
 
 server <- function(input, output, session) {
@@ -357,7 +337,7 @@ output$fat_actor1 <- renderPlot({
 #here is where the html of my stargazer table is going 
 
 getPage <- function() {
-  return(includeHTML("models.html"))
+  return(includeHTML("models3.html"))
   
 }
 
