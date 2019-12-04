@@ -190,8 +190,14 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     navbarPage("Conflict in the Yemeni Civil War",
     
               tabPanel("Fatalities",
-                 titlePanel("Fatalities in the Yemeni Civil War, Summer 2019"),
-                 imageOutput("map"),
+                 titlePanel("Fatalities in the Yemeni Civil War"),
+                 h5("Yemen’s Civil War began in March 2015 between the Yemeni Government, 
+                    led by Abdrabbuh Mansur Hadi, and separatist rebels called the Houthis. 
+                    Since then, Saudi Arabia, the UAE, Bahrain, the United States, the United Kingdom, France, Iran, and others have participated by providing material, logistic, intelligence, or other forms of support to certain factions. The war has plunged Yemen into the world’s largest humanitarian disaster. Between conflict and famine, ACLED estimates that the war has killed over 100,000 Yemenis."),
+                 h4("Snapshot of Fatalities during Summer 2019"),
+                 h6("Heightened geopolitical tensions corresponded with high intensity conflict."),
+                div(style = "margin-top = -8em",
+                 imageOutput("map")),
                  imageOutput("fig_fatalities")),  
     
     
@@ -201,13 +207,14 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                #this is the fat by actor drop down (1) 
                tabPanel("Fatalities by Actor",
                         titlePanel("Fatalities by Actor"),
+                        h5("The Yemeni civil war is incredibly complex; ACLED recorded 173 unique actors since 2015. These actors include governments, state-sanctioned proxies, militias, and terrorist organizations, with the lines between groups often blurry. To make sense of this, I sorted all 173 groups with attributable fatalities greater than 5 into 9 affiliations. Select these actors in the drop-down menu below to see where they committed attacks."),
                         sidebarLayout(position = "right",
                                       sidebarPanel(
                                         selectInput("recode_actor1",
                                                     "Actor:",
                                               choices = sort(unique(fat_actor1$recode_actor1)),
                                               selected = "Pro-Goverment Militias",
-                                              multiple = TRUE,
+                                              multiple = FALSE,
                                               )),
                                       mainPanel(
                                         plotOutput("fat_actor1"),
@@ -230,6 +237,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     
     tabPanel("Fatalities by Event Type",
              titlePanel("Fatalities by Event Type"),
+             h5("In most asymmetric conflicts, actors employ different lethal methods depending on what they have at their disposal. The Saudi-led coalition mainly utilizes airpower like drone strikes, with support from their coalition partners, while less well-funded actors like militias resort to smaller artillery and bomb attacks. Select these attack types in the drop-down menu below to see where they occurred."),
              sidebarLayout(position = "right",
                            sidebarPanel(
                              selectInput("map_fat_sub_event",
@@ -246,12 +254,14 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     
     #regression will go here: 
 tabPanel("Analysis",
+         h5("exp of actors"), 
+        htmlOutput("model"),
          imageOutput("pgm_model"),
          br(),
          br(),
          br(),
-         h5("h555555555555555"),
          br(),
+         h5("This is where analysis for PGM graph will go"),
          br(),
          br(),
          imageOutput("saudi_model"),
@@ -259,14 +269,24 @@ tabPanel("Analysis",
          br(),
          br(),
          br(),
+         h5("This is where analysis for saudi graph will go"),
          br(),
          br(),
-         imageOutput("yemen_model")),
+         imageOutput("yemen_model"),
+         br(),
+         br(),
+         br(),
+         br(),
+         h5("This is where analysis for yemen graph will go"),
+         br(),
+         br(),
+         ),
 
 tabPanel("About",
          mainPanel(
            h2("The Data"),
-           h5("The Armed Conflict Location & Event Data (ACLED) Project is a “disaggregated data collection, analysis and crisis mapping project” that has collected an incredibly detailed account of political violence and protest events. This site uses data from their collection on Yemen between 1 January 2015 (a few months before the official start of the civil war) and 8 October 2019. Please check out their work ", a("here.", href="https://www.acleddata.com/about-acled/")),
+           imageOutput("acled"),
+           h5("The Armed Conflict Location & Event Data (ACLED) Project is a “disaggregated data collection, analysis and crisis mapping project” that has collected an incredibly detailed account of political violence and protest events. This app uses data from their collection on Yemen between 1 January 2015 (a few months before the official start of the civil war) and 8 October 2019. Please check out their work ", a("here.", href="https://www.acleddata.com/about-acled/")),
            h2("Connect"),
            h5("You can contact me at lizmasten@g.harvard.edu or connect with my on ", a("LinkedIn.", href="www.linkedin.com/in/elizabeth-masten-642567196")),
            h2("Technical"),
@@ -316,6 +336,12 @@ server <- function(input, output, session) {
       list(src = filename4)
     }, deleteFile = FALSE)
     
+    #this is an upload of the ACLED image in the About page 
+    
+    output$acled <- renderImage({
+      filename5 <- "ACLED.png"
+      list(src = filename5)
+    }, deleteFile = FALSE)
     #this is where map_fat_by_actor1 goes
 
 output$fat_actor1 <- renderPlot({
@@ -325,6 +351,18 @@ output$fat_actor1 <- renderPlot({
     geom_sf(data = shap) +
     geom_sf(data = fat_actor1, aes(color = recode_actor1, fill = recode_actor1))
   map_fat_actor1
+  
+})
+
+#here is where the html of my stargazer table is going 
+
+getPage <- function() {
+  return(includeHTML("models.html"))
+  
+}
+
+output$model <- renderUI({
+  getPage()
   
 })
 
@@ -350,8 +388,6 @@ output$fat_sub_event <- renderPlot({
     geom_sf(data = fat_sub_event, aes(color = sub_event_type, fill = sub_event_type))
   map_fat_sub_event
   
- # ggplotly(map_fat_sub_event)
-  #map_fat_sub_event
   
 })
 
