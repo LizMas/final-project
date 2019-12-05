@@ -12,7 +12,8 @@ library(shinyBS)
 library(ggridges)
 library(plotly)
 library(png)
-library(leaflet)
+library(shinyWidgets)
+library(wesanderson)
 library(tidyverse)
 
 locate_all <- read_rds("clean-data_2/locations.rds")
@@ -25,9 +26,13 @@ fat_sub_event <- locate_all %>%
   summarise(sum_fatby_event = sum(fatalities)) %>% 
   filter(sum_fatby_event != 0)
 
+group_colors <- c("Air/drone strike" = "lavenderblush4", "Armed clash" = "lightsalmon4", "Attack" = "#CC6600", "Chemical weapon" ="firebrick1", "Disrupted weapons use" = "plum4", "Excessive force against protesters" = "orangered4", "Government regains territory" = "mistyrose4", "Grenade" = "slategrey", "Mob violence" = "indianred4", "Non-state actor overtakes territory" = "cadetblue4", "Remote explosive/landmine/IED" = "antiquewhite4", "Sexual violence" = "black", "Shelling/artillery/missile attack" = "darkgoldenrod3", "Suicide bomb" = "darkseagreen4", "Violent demonstration" = "goldenrod3")
 map_fat_sub_event <- ggplot(shap) +
   geom_sf(data = shap) +
-  geom_sf(data = fat_sub_event, aes(color = sub_event_type))
+  geom_sf(data = fat_sub_event, aes(color = sub_event_type, fill = sub_event_type)) +
+  scale_fill_manual(values = group_colors) +
+  scale_color_manual(values = group_colors) + labs(title = "Attack Locations in Yemen per Event Type, 1 Jan 2015 - 8 Oct 2019",
+                                                   fill= "Event Type", color = "Event Type")
 
 #recode actor1 
 
@@ -133,9 +138,14 @@ fat_actor1 <- conflict_actor1_recode %>%
   #head 9 because that's where it stops getting interesting number-wise
   head(9)
 
+group_colors <- c("Unknown Affiliation" = "lightsalmon4", "Unidentified Militias" = "#CC6600", "Pro-Government Militias" ="mistyrose4", "Islamic State and Affiliates" = "plum4", "AQAP: Al Qaeda in the Arabian Peninsula" = "orangered4", "Separatist Militias" = "sienna", "Military Forces of United States" = "slategrey", "Military Forces of Yemen" = "cadetblue4", "Saudi Coalition Operations" = "indianred4")
 map_fat_actor1 <- ggplot(shap) +
   geom_sf(data = shap) +
-  geom_sf(data = fat_actor1, aes(color = recode_actor1))
+  geom_sf(data = fat_actor1, aes(color = recode_actor1, fill = recode_actor1)) +
+  scale_fill_manual(values = group_colors) +
+  scale_color_manual(values = group_colors) +
+  scale_color_manual(values = group_colors) + labs(title = "Attack Locations in Yemen per Actor, 1 Jan 2015 - 8 Oct 2019",
+                                                   fill= "Actor", color = "Actor")
 
 #This is the data for the regression page 
 
@@ -196,10 +206,11 @@ ui <- fluidPage(theme = shinytheme("flatly"),
              h5("In most asymmetric conflicts, actors employ different lethal methods depending on what they have at their disposal. The Saudi-led coalition mainly utilizes airpower like drone strikes, with support from their coalition partners, while less well-funded actors like militias resort to smaller artillery and bomb attacks. Select these attack types in the drop-down menu below to see where they occurred."),
              sidebarLayout(position = "right",
                            sidebarPanel(
-                             radioButtons("map_fat_sub_event",
+                             prettyRadioButtons("map_fat_sub_event",
                                          "Event Type:",
                                          choices = sort(unique(fat_sub_event$sub_event_type)),
                                          selected = "Air/drone strike",
+                                        outline = TRUE, fill = TRUE,
                                          )),
                            mainPanel(
                              plotOutput("fat_sub_event"),
@@ -266,15 +277,17 @@ tabPanel("Analysis",
 
 tabPanel("About",
          mainPanel(
+           #imageOutput("acled"),
            h2("The Data"),
-           imageOutput("acled"),
+           br(),
+           br(),
            div(style = "padding: 0px 0px; margin-top:-2em",
            h5("The Armed Conflict Location & Event Data (ACLED) Project is a “disaggregated data collection, analysis and crisis mapping project” that has collected an incredibly detailed account of political violence and protest events. This app uses data from their collection on Yemen between 1 January 2015 (a few months before the official start of the civil war) and 8 October 2019. Please check out their work ", a("here.", href="https://www.acleddata.com/about-acled/")),
            h2("Connect"),
            h5("You can contact me at lizmasten@g.harvard.edu or connect with my on ", a("LinkedIn.", href="www.linkedin.com/in/elizabeth-masten-642567196")),
            h2("Technical"),
            h5("The source code for this site can be found at my ", a("GitHub.", href="https://github.com/LizMas")),
-                                                
+               
            
          )))))
 
@@ -341,11 +354,14 @@ server <- function(input, output, session) {
 
 output$fat_actor1 <- renderPlot({
   fat_actor1 <- fat_actor1 %>% filter(recode_actor1 == input$recode_actor1)
-  group_colors <- c("Unknown Affiliation" = "#333BFF", "Unidentified Militias" = "#CC6600", "Pro-Government Militias" ="#9633FF", "Islamic State and Affiliates" = "#E2FF33", E = "#E3DB71")
+  group_colors <- c("Unknown Affiliation" = "lightsalmon4", "Unidentified Militias" = "#CC6600", "Pro-Government Militias" ="mistyrose4", "Islamic State and Affiliates" = "plum4", "AQAP: Al Qaeda in the Arabian Peninsula" = "orangered4", "Separatist Militias" = "sienna", "Military Forces of United States" = "slategrey", "Military Forces of Yemen" = "cadetblue4", "Saudi Coalition Operations" = "indianred4")
   map_fat_actor1 <- ggplot(shap) +
     geom_sf(data = shap) +
-    geom_sf(data = fat_actor1, aes(color = recode_actor1, fill = recode_actor1)) #+
-    #scale_fill_manual(values=group_colors)
+    geom_sf(data = fat_actor1, aes(color = recode_actor1, fill = recode_actor1)) +
+   scale_fill_manual(values = group_colors) +
+  scale_color_manual(values = group_colors) +
+    scale_color_manual(values = group_colors) + labs(title = "Attack Locations in Yemen per Actor, 1 Jan 2015 - 8 Oct 2019",
+                                                     fill= "Actor", color = "Actor")
   map_fat_actor1
   
 })
@@ -374,12 +390,17 @@ output$model2 <- renderUI({
 })
 
 
-#ggplot vs plot_ly- watch datacamp 
+#interactive map of event types 
+
 output$fat_sub_event <- renderPlot({
   fat_sub_event <- fat_sub_event %>% filter(sub_event_type == input$map_fat_sub_event)
+  group_colors <- c("Air/drone strike" = "lavenderblush4", "Armed clash" = "lightsalmon4", "Attack" = "#CC6600", "Chemical weapon" ="firebrick1", "Disrupted weapons use" = "plum4", "Excessive force against protesters" = "orangered4", "Government regains territory" = "mistyrose4", "Grenade" = "slategrey", "Mob violence" = "indianred4", "Non-state actor overtakes territory" = "cadetblue4", "Remote explosive/landmine/IED" = "antiquewhite4", "Sexual violence" = "black", "Shelling/artillery/missile attack" = "darkgoldenrod3", "Suicide bomb" = "darkseagreen4", "Violent demonstration" = "goldenrod3")
   map_fat_sub_event <- ggplot(shap) +
     geom_sf(data = shap) +
-    geom_sf(data = fat_sub_event, aes(color = sub_event_type, fill = sub_event_type))
+    geom_sf(data = fat_sub_event, aes(color = sub_event_type, fill = sub_event_type)) +
+    scale_fill_manual(values = group_colors) +
+    scale_color_manual(values = group_colors) + labs(title = "Attack Locations in Yemen per Event Type, 1 Jan 2015 - 8 Oct 2019",
+    fill= "Event Type", color = "Event Type")
   map_fat_sub_event
   
   
