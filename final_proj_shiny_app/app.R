@@ -16,9 +16,15 @@ library(shinyWidgets)
 library(wesanderson)
 library(tidyverse)
 
+#this is all of the data needed for the Shiny app to run: 
+
+#read in rds of location and shape data for the summer gif: 
+
 locate_all <- read_rds("clean-data_2/locations.rds")
 
 shap <- read_rds("clean-data_2/shape.rds")
+
+#this is for the fatalities by event type section: 
 
 fat_sub_event <- locate_all %>% 
   select(sub_event_type, fatalities) %>% 
@@ -34,10 +40,9 @@ map_fat_sub_event <- ggplot(shap) +
   scale_color_manual(values = group_colors) + labs(title = "Attack Locations in Yemen per Event Type, 1 Jan 2015 - 8 Oct 2019",
                                                    fill= "Event Type", color = "Event Type")
 
-#recode actor1 
+#this is for the fatalities by actor section: 
 
 locate_all$actor1 <- as.factor(locate_all$actor1)
-
 
 conflict_actor1_recode <- locate_all %>% 
   mutate(recode_actor1 = fct_recode(actor1,
@@ -128,7 +133,7 @@ conflict_actor1_recode <- locate_all %>%
                                     "Police Forces of Yemen" = "Police Forces of Yemen (2016-) Prison Guards",
                                     "Police Forces of Yemen" = "Police Forces of Yemen (2016-) Special Security Forces" ))
 
-#find total fatalities by actor1
+#find total fatalities by actor1: 
 
 fat_actor1 <- conflict_actor1_recode %>% 
   select(recode_actor1, event_date, fatalities) %>% 
@@ -148,7 +153,7 @@ map_fat_actor1 <- ggplot(shap) +
   scale_color_manual(values = group_colors) + labs(title = "Attack Locations in Yemen per Actor, 1 Jan 2015 - 8 Oct 2019",
                                                    fill= "Actor", color = "Actor")
 
-#This is the data for the regression page 
+#this is the data for the regression page: 
 
 pgm <- conflict_actor1_recode %>% 
   select(recode_actor1, event_date, fatalities) %>% 
@@ -174,8 +179,6 @@ yemen_gov <- conflict_actor1_recode %>%
   arrange(desc(sum_fatby_actor1)) %>% 
   mutate(yemen_ops = ifelse(recode_actor1 =="Military Forces of Yemen", 1, 0))
 
-
-
  
 #shiny app starts here --------------------------------
 
@@ -185,15 +188,9 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                 
     navbarPage("Fatalities in Yemen's Civil War",
               tabPanel("Fatalities",
-                 titlePanel("Why is there a war in Yemen?"),
-                 h5("Yemen’s Civil War began in March 2015 between the Yemeni Government, 
-                    led by Abdrabbuh Mansur Hadi, and separatist rebels called the Houthis. 
-                    Since then, Saudi Arabia, the UAE, Bahrain, the United States, the United Kingdom, France, Iran, and others have participated by providing material, logistic, intelligence, or other forms of support to certain factions. The war has plunged Yemen into the world’s largest humanitarian disaster. Between conflict and famine, ACLED estimates that the war has killed over 100,000 Yemenis."),
-                 h4("Snapshot of Fatalities during Summer 2019"),
-                 h6("Heightened geopolitical tensions corresponded with high intensity conflict."),
-                 imageOutput("map"),
-                 imageOutput("fig_fatalities")),  
-    
+                 h5("Yemen’s civil war began in March 2015 between Yemeni government forces aligned with President Abdrabbuh Mansur Hadi, and a rebel force called the Houthi Movement. Since then, the conflict has devolved into a chaotic web of government forces, militias, and foreign entities who form alliances of convenience one moment and then dissolve them the next. This project attempts to make sense of this chaos through mapping and analyzing instances and attributability of attacks."),
+                 imageOutput("fig_fatalities")),
+                 
     
     #here's where the two interactive maps go
     
@@ -233,16 +230,14 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                              )),
                            mainPanel(
                              plotOutput("fat_actor1"),
-                             imageOutput("col_actor"),
-                             br(),
-                             br(),
-                             br(), 
-                             htmlOutput("model2"),
+                             h4("Snapshot of fatal events during summer 2019"),
+                             h6("Heightened geopolitical tensions corresponded with high intensity conflict."),
+                             imageOutput("map")
                            )
                            
              ))),
-    #here are the regressions. The explanations take some work. 
-    #I plan to incorporate some of my PDF work into the wording here.
+    
+    #regressions are here: 
     
 navbarMenu("Discussion",
            tabPanel("Overview",
@@ -274,25 +269,19 @@ Here is how the actors are coded:
 
 tabPanel("Analysis",
          h2("Analysis"), 
-         h5("The top three deadliest actors in Yemen’s Civil War are: Military Forces aligned with the recognized Yemeni Government, who are responsible for 68,104 fatalities; the Saudi-led Coalition, who are responsible for 17,717 fatalities; and Pro-Government Militias, who are responsible for 6,275. Below is a regression table of these three actors."), 
+         h5("The three deadliest actors in Yemen’s Civil War are: Military Forces aligned with the Yemeni Government (remember, per the methodology section, this variable includes both Hadi government forces and Houthi forces), who are responsible for 68,104 fatalities; the Saudi-led Coalition, who are responsible for 17,717 fatalities; and Pro-Government Militias (PGMs), who are responsible for 6,275. To analyze these actors’ individual contribution to fatalities, I ran three Poisson regressions that show trends in lethality based on number of attacks per actor:"), 
+         br(),
+         br(),
         htmlOutput("model"),
         br(), 
-        br(),
+        h5("The regression table above shows that Pro-Government Militias and Saudi-led Coalition operations have a negative correlation to fatalities, with the Coalition presenting a much stronger negative correlation. Meanwhile, Military Forces of Yemen present a positive correlation with respect to fatalities. Below, you can find individual visualizations of these findings with short discussions."),
         br(), 
-         imageOutput("pgm_model"),
-         br(),
-         br(),
-         br(),
-         br(),
-         h5("Pro-Government Militias have a slight negative correlation with respect to fatalities."),
-         br(),
-         br(),
          imageOutput("saudi_model"),
          br(),
          br(),
          br(),
          br(),
-         h5("Saudi-Led Coalition Operations have a stronger negative correlation with respect to fatalities."),
+         h5("Saudi-Led Coalition Operations have a stronger negative correlation with respect to fatalities, presenting a regression coefficient of -1.303. This means that for each attack committed by members of the Coalition, the individual attacks were less deadly than the other actors. This is possibly due to the Coalition’s comparatively advanced weaponry and support, which makes targeted attacks more possible, thus reducing collateral damage."),
          br(),
          br(),
          imageOutput("yemen_model"),
@@ -300,7 +289,15 @@ tabPanel("Analysis",
          br(),
          br(),
          br(),
-         h5("Yemen Government Operations have a positive correlation with respect to fatalities."),
+         h5("Yemen Government Operations have a positive correlation with respect to fatalities, presenting a regression coefficient of 1.227. This means that attacks committed by these actors were more deadly, possibly because these actors do not have the same logistic, material, and intelligence support that the Saudi-led coalition does. This may impact their ability to perform accurate assessments of targets and increase their reliance on old and/or less advanced equipment. These factors may increase the likelihood of poorly targeted or indiscriminate attacks which lead to higher levels of collateral damage. These actors are by far the most active in the conflict, suggesting that their attack methods increase their lethality even more."),
+         br(),
+         br(),
+         imageOutput("pgm_model"),
+         br(),
+         br(),
+         br(),
+         br(),
+         h5("PGMs have a slight negative correlation with respect to fatalities, although this trend is hard to see based on the regression line above. Per the regression coefficient of -0.051, for each single increase in attacks committed by PGMs, the chance of those attacks being as fatal as if they were committed by the other actors in the data decreases by 0.051. You can also see in the visualization that PGMs committed less high-casualty attacks than other actors."),
          br(),
          br(),
           )),
@@ -359,7 +356,7 @@ server <- function(input, output, session) {
       list(src = filename4)
     }, deleteFile = FALSE)
     
-    #this is an upload of the ACLED image in the About page 
+    #this is an upload of the ACLED image in the About page, it's currently commented out of the UI pending a way to fix the margins 
     
     output$acled <- renderImage({
       filename5 <- "ACLED.png"
@@ -437,6 +434,8 @@ output$fat_sub_event <- renderPlot({
 })
 
 }
+
+#run the app: 
 
 shinyApp(ui, server)
 
