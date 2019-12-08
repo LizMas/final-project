@@ -244,33 +244,36 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     #here are the regressions. The explanations take some work. 
     #I plan to incorporate some of my PDF work into the wording here.
     
-navbarMenu("Analysis",
-           tabPanel("Discussion and Methodology",
+navbarMenu("Discussion",
+           tabPanel("Overview",
+                    h2("Overview: Endemic instability"),
                     h5("The dynamics of Yemen’s civil war and the sometimes disparate and/or capricious alliances are hard to understand if you are unfamiliar with the history and endemic instability of Yemen. Similarly, the limitations of this project are difficult to appreciate without an understanding of the historical background."),
-                    h2("Endemic instability"),
                     h5("Yemen was previously a British protectorate. In the 1960s, the southern part of the protectorate rebelled against British rule, which cumulated with Britain withdrawing from southern Yemen and consolidating their colony in the north. The south subsequently became the People’s Democratic Republic of Yemen, the Arab world’s only communist state, which enjoyed the support of the USSR.  Meanwhile, the north was embroiled in a civil war which pitted republican forces against royalists. The republican forces won, and northern Yemen became the Yemen Arab Republic, eventually aligned with Saudi Arabia.   Peace was short-lived; in 1972, a war broke out between the Yemen Arab Republic, supported by the Saudis, and the People’s Republic of South Yemen, supported by the USSR. In 1979, a similar conflict broke out, and in 1986, the south experienced yet another civil war."),
                     h2("Unification"),
                     h5("On 22 May 1990, North and South Yemen unified into a singular country, the Republic of Yemen, led by President Ali Abdullah Saleh. Another civil war ensued for the following four years. A movement opposed to Saleh’s rule emerged, calling themselves the Houthis. The following decade saw an uneasy peace, occasionally interrupted by high-profile terrorist attacks committed by Al-Qaeda’s affiliate in the Arabian Peninsula (AQAP). 
 Partially emboldened by the US invasion of Iraq, the Houthi movement began an insurgency in 2004 aimed at ousting Saleh.  They were ultimately unsuccessful, but Saleh was eventually ousted after Arab Spring protests in November 2011 and replaced by Abdrabbuh Mansour Hadi. The Houthis were critical of Hadi, who they and most of the country saw as Riyadh’s puppet, and in 2014, they began working with Saleh to oust Hadi in a surprising reversal of alliances."),
                     h2("The current civil war begins"),
                     h5("In August 2014, the Houthis seized control of most of the capital, Sanaa. Iran, seeing an opportunity to counter their regional rival Saudi Arabia, aligned with the Houthis. They began offering material and personnel support, including resources from their Lebanese proxy, Hizballah.  In response, Saudi Arabia assembled a coalition to drive the Houthis out. The entrance of the Saudi-led coalition on 22 March 2015 marks the “official” beginning of the civil war."),
-                    h2("Limitations of this project"),
-                    h5("The complex history outlined in the previous tab has created a mess of intertwined and competing allegiances that encourage alliances of convenience. These alliances break down once they are no longer expedient. This not only makes the conflict more volatile, but it makes coding actors across time incredibly difficult. 
+                     ),
+tabPanel("Methodology",
+         h2("Methodology and Limitations"),
+         h5("The complex history outlined in the previous tab has created a mess of intertwined and competing allegiances that encourage alliances of convenience. These alliances break down once they are no longer expedient. This not only makes the conflict more volatile, but it makes coding actors across time incredibly difficult. 
 ACLED has aggregated 270 distinct actors operating in Yemen; this project uses 173 of them. I sorted these 173 groups with attributable fatalities greater than five into nine affiliations. Select these actors in the drop-down menu below to see where they committed attacks.
 Here is how the actors are coded: 
 "),
-                    h5("-	Military Forces of Yemen: Variable includes attacks committed by Hadi government forces AND Houthi forces. This variable is the most problematic in this project. Due to the duality of governance between the Hadi-led government and the Houthis, the Houthi’s incorporation of the Supreme Revolutionary Council as an interim working governing body, and the fact that individual actor alliances between the two governing forces have a high degree of fractionalization across years, it is nearly impossible to attribute attacks to Hadi or Houthi forces with any meaningful consistency. This was a methodological decision made by ACLED and continued by me, but it is not an endorsement of Houthi legitimacy."),
-                    h5("-	Military Forces of the United States: Variable includes attacks committed directly by US forces."),
-                    h5("-	Saudi-led Coalition: Variable includes all members of the GCC (minus Oman) who joined the coalition at the outset of the war; Morocco, Egypt, Sudan, and Jordan, who pledged military support, and the United States when they operate within the coalition, usually within an intelligence or logistic capacity."),
-                    h5("-	Pro-Government Militias: Variable includes militias that align with either the Hadi-led government or the Houthis."),
-                    h5("-	Separatist Militias: Variable includes southern secessionists, including the Southern Transitional Council (STC)."),
-                    h5("-	Islamic State and Affiliates: Variable includes attacks by IS and affiliates that have directly pledged allegiance to the organization. This variable is coded differently than AQAP because, contrary to popular belief, they do not get along."),
-                    h5("-	AQAP: Variable includes attacks by al-Qaeda’s branch in the Arabian Peninsula."),
-                    h5("-	Unknown Affiliation: Variable includes actors that do not present a clear affiliation."),
-                    h5("-	Unidentified Militias: Variable includes attacks by militias that were not identified.")
-           ),
+         h5("-	Military Forces of Yemen: Variable includes attacks committed by Hadi government forces AND Houthi forces. This variable is the most problematic in this project. Due to the duality of governance between the Hadi-led government and the Houthis, the Houthi’s incorporation of the Supreme Revolutionary Council as an interim working governing body, and the fact that individual actor alliances between the two governing forces have a high degree of fractionalization across years, it is nearly impossible to attribute attacks to Hadi or Houthi forces with any meaningful consistency. This was a methodological decision made by ACLED and continued by me, but it is not an endorsement of Houthi legitimacy."),
+         h5("-	Military Forces of the United States: Variable includes attacks committed directly by US forces."),
+         h5("-	Saudi-led Coalition: Variable includes all members of the GCC (minus Oman) who joined the coalition at the outset of the war; Morocco, Egypt, Sudan, and Jordan, who pledged military support, and the United States when they operate within the coalition, usually within an intelligence or logistic capacity."),
+         h5("-	Pro-Government Militias: Variable includes militias that align with either the Hadi-led government or the Houthis."),
+         h5("-	Separatist Militias: Variable includes southern secessionists, including the Southern Transitional Council (STC)."),
+         h5("-	Islamic State and Affiliates: Variable includes attacks by IS and affiliates that have directly pledged allegiance to the organization. This variable is coded differently than AQAP because, contrary to popular belief, they do not get along."),
+         h5("-	AQAP: Variable includes attacks by al-Qaeda’s branch in the Arabian Peninsula."),
+         h5("-	Unknown Affiliation: Variable includes actors that do not present a clear affiliation."),
+         h5("-	Unidentified Militias: Variable includes attacks by militias that were not identified."
+         )),
 
-tabPanel("Regressions here",
+tabPanel("Analysis",
+         h2("Analysis"), 
          h5("The top three deadliest actors in Yemen’s Civil War are: Military Forces aligned with the recognized Yemeni Government, who are responsible for 68,104 fatalities; the Saudi-led Coalition, who are responsible for 17,717 fatalities; and Pro-Government Militias, who are responsible for 6,275. Below is a regression table of these three actors."), 
         htmlOutput("model"),
         br(), 
@@ -302,7 +305,6 @@ tabPanel("Regressions here",
          br(),
           )),
 
-
 tabPanel("About",
          mainPanel(
            #imageOutput("acled"),
@@ -310,7 +312,7 @@ tabPanel("About",
            br(),
            br(),
            div(style = "padding: 0px 0px; margin-top:-2em",
-           h5("The Armed Conflict Location & Event Data (ACLED) Project is a “disaggregated data collection, analysis and crisis mapping project” that has collected an incredibly detailed account of political violence and protest events. This app uses data from their collection on Yemen between 1 January 2015 and 8 October 2019. Please check out their work ", a("here.", href="https://www.acleddata.com/about-acled/")),
+           h5("The Armed Conflict Location & Event Data (ACLED) Project is a “disaggregated data collection, analysis and crisis mapping project” that has collected an incredibly detailed account of political violence and protest events. This app uses data from their collection on Yemen between 1 January 2015 and 8 October 2019, which they have generously made available for public use. Please check out their work ", a("here.", href="https://www.acleddata.com/about-acled/")),
            h2("Connect"),
            h5("You can contact me at lizmasten@g.harvard.edu or connect with my on ", a("LinkedIn.", href="www.linkedin.com/in/elizabeth-masten-642567196")),
            h2("Technical"),
