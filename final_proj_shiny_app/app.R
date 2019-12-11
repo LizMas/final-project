@@ -14,6 +14,7 @@ library(plotly)
 library(png)
 library(shinyWidgets)
 library(wesanderson)
+library(leaflet)
 library(tidyverse)
 
 #this is all of the data needed for the Shiny app to run: 
@@ -189,6 +190,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     navbarPage("Fatalities in Yemen's Civil War",
               tabPanel("Fatalities",
                  h5("Yemen’s civil war began in March 2015 between Yemeni government forces aligned with President Abdrabbuh Mansur Hadi, and a rebel force called the Houthi Movement. Since then, the conflict has devolved into a chaotic web of government forces, militias, and foreign entities who form alliances of convenience one moment and then dissolve them the next. This project attempts to make sense of this chaos through mapping and analyzing instances and attributability of attacks."),
+                 leafletOutput("leaf"),
                  imageOutput("fig_fatalities")),
                  
     
@@ -200,7 +202,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     
        tabPanel("Fatalities by Event Type",
              titlePanel("Fatalities by Event Type"),
-             h5("In most asymmetric conflicts, actors employ different lethal methods depending on what they have at their disposal. The Saudi-led coalition mainly utilizes airpower like drone strikes, with support from their coalition partners, while less well-funded actors like militias resort to smaller artillery and bomb attacks. Select these attack types in the drop-down menu below to see where they occurred."),
+             h5("In most asymmetric conflicts, actors employ different lethal methods depending on what they have at their disposal. The Saudi-led coalition mainly utilizes air strikes, with support from their coalition partners, while less well-funded actors like militias resort to smaller artillery and bomb attacks. Select these attack types in the drop-down menu below to see where they occurred."),
              sidebarLayout(position = "right",
                            sidebarPanel(
                              prettyRadioButtons("map_fat_sub_event",
@@ -219,7 +221,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     #this is the fat by actor drop down (1) 
     tabPanel("Fatalities by Actor",
              titlePanel("Fatalities by Actor"),
-             h5("The Yemeni civil war is incredibly complex; ACLED recorded 173 unique actors since 2015. These actors include governments, state-sanctioned proxies, militias, and terrorist organizations, with the lines between groups often blurry. To make sense of this, I sorted all 173 groups with attributable fatalities greater than 5 into 9 affiliations. Select these actors in the drop-down menu below to see where they committed attacks."),
+             h5("The Yemeni civil war is incredibly complex. ACLED has aggregated 270 distinct actors operating in Yemen; this project uses 173 of them. These actors include governments, state-sanctioned proxies, militias, and terrorist organizations, with the lines between groups often blurry. To make sense of this, I sorted the 173 groups with attributable fatalities greater than 5 into 9 affiliations. Select these actors in the drop-down menu below to see where they committed attacks."),
              sidebarLayout(position = "right", 
                            sidebarPanel(
                              selectInput("recode_actor1",
@@ -253,9 +255,7 @@ Partially emboldened by the US invasion of Iraq, the Houthi movement began an in
 tabPanel("Methodology",
          h2("Methodology and Limitations"),
          h5("The complex history outlined in the previous tab has created a mess of intertwined and competing allegiances that encourage alliances of convenience. These alliances break down once they are no longer expedient. This not only makes the conflict more volatile, but it makes coding actors across time incredibly difficult. 
-ACLED has aggregated 270 distinct actors operating in Yemen; this project uses 173 of them. I sorted these 173 groups with attributable fatalities greater than five into nine affiliations. Select these actors in the drop-down menu below to see where they committed attacks.
-Here is how the actors are coded: 
-"),
+ACLED has aggregated 270 distinct actors operating in Yemen; this project uses 173 of them. I sorted these 173 groups with attributable fatalities greater than five into nine affiliations:"),
          h5("-	Military Forces of Yemen: Variable includes attacks committed by Hadi government forces AND Houthi forces. This variable is the most problematic in this project. Due to the duality of governance between the Hadi-led government and the Houthis, the Houthi’s incorporation of the Supreme Revolutionary Council as an interim working governing body, and the fact that individual actor alliances between the two governing forces have a high degree of fractionalization across years, it is nearly impossible to attribute attacks to Hadi or Houthi forces with any meaningful consistency. This was a methodological decision made by ACLED and continued by me, but it is not an endorsement of Houthi legitimacy."),
          h5("-	Military Forces of the United States: Variable includes attacks committed directly by US forces."),
          h5("-	Saudi-led Coalition: Variable includes all members of the GCC (minus Oman) who joined the coalition at the outset of the war; Morocco, Egypt, Sudan, and Jordan, who pledged military support, and the United States when they operate within the coalition, usually within an intelligence or logistic capacity."),
@@ -322,6 +322,13 @@ tabPanel("About",
 server <- function(input, output, session) {
   toggleModal(session, "tutorialModal", toggle = "open")
 
+  #this is where the opening leaflet Yemen map goes 
+  output$leaf <- renderLeaflet({
+    leafy <- leaflet(states) %>%
+      setView(lng = 48.5164,lat = 15.5527, zoom = 5.3) %>% 
+      addTiles() 
+    leafy
+  })
   
   #this is where map goes 
     output$map <- renderImage({
