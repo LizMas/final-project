@@ -14,12 +14,11 @@ library(plotly)
 library(png)
 library(shinyWidgets)
 library(wesanderson)
-library(leaflet)
 library(tidyverse)
 
 #this is all of the data needed for the Shiny app to run: 
 
-#read in rds of location and shape data for the summer gif: 
+#read in rds of location and shape data for the summer map gif: 
 
 locate_all <- read_rds("clean-data_2/locations.rds")
 
@@ -44,6 +43,8 @@ map_fat_sub_event <- ggplot(shap) +
 #this is for the fatalities by actor section: 
 
 locate_all$actor1 <- as.factor(locate_all$actor1)
+
+#I recoded all actors with attributable fatalities over 5 here: 
 
 conflict_actor1_recode <- locate_all %>% 
   mutate(recode_actor1 = fct_recode(actor1,
@@ -145,6 +146,8 @@ fat_actor1 <- conflict_actor1_recode %>%
   #head 9 because that's where it stops getting interesting number-wise
   head(9)
 
+#I wanted to make the color palette a little less happy than the default because this app is about death, and the more muted packages didn't have enough colors, so I hand-picked some colors. 
+
 group_colors <- c("Unknown Affiliation" = "lightsalmon4", "Unidentified Militias" = "#CC6600", "Pro-Government Militias" ="mistyrose4", "Islamic State and Affiliates" = "plum4", "AQAP: Al Qaeda in the Arabian Peninsula" = "orangered4", "Separatist Militias" = "sienna", "Military Forces of United States" = "slategrey", "Military Forces of Yemen" = "cadetblue4", "Saudi Coalition Operations" = "indianred4")
 map_fat_actor1 <- ggplot(shap) +
   geom_sf(data = shap) +
@@ -190,7 +193,6 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     navbarPage("Fatalities in Yemen's Civil War",
               tabPanel("Fatalities",
                  h5("Yemen’s civil war began in March 2015 between Yemeni government forces aligned with President Abdrabbuh Mansur Hadi, and a rebel force called the Houthi Movement. Since then, the conflict has devolved into a chaotic web of government forces, militias, and foreign entities who form alliances of convenience one moment and then dissolve them the next. This project attempts to make sense of this chaos through mapping and analyzing instances and attributability of attacks."),
-                 leafletOutput("leaf"),
                  imageOutput("fig_fatalities")),
                  
     
@@ -239,7 +241,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                            
              ))),
     
-    #regressions are here: 
+    #discussion page, including methodology and regressions here:
+    #I wanted to include an overview of the war for people who aren't familiar. 
     
 navbarMenu("Discussion",
            tabPanel("Overview",
@@ -322,13 +325,6 @@ tabPanel("About",
 server <- function(input, output, session) {
   toggleModal(session, "tutorialModal", toggle = "open")
 
-  #this is where the opening leaflet Yemen map goes 
-  output$leaf <- renderLeaflet({
-    leafy <- leaflet(states) %>%
-      setView(lng = 48.5164,lat = 15.5527, zoom = 5.3) %>% 
-      addTiles() 
-    leafy
-  })
   
   #this is where map goes 
     output$map <- renderImage({
